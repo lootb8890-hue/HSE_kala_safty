@@ -40,6 +40,10 @@ const DEFAULT_STATE = {
         { id: "EV-1", title: "تمرين إخلاء سنوي", date: "2026-08-15", type: "drill" },
         { id: "EV-2", title: "تجديد شهادات OSHA للفريق", date: "2026-08-20", type: "training" }
     ],
+    chatMessages: [
+        { id: "MSG-1", sender: "مدير السلامة العام", text: "يرجى من جميع الأعضاء الميدانيين التأكد من فحص طفايات الحريق بالمستودع الرئيسي وتأكيد التجاوب عبر النظام.", time: "08:15 ص", role: "manager" },
+        { id: "MSG-2", sender: "أحمد علي", text: "علم، تم التوجه إلى المستودع وسيتم رفع التقرير فور الانتهاء من الفحص.", time: "08:18 ص", role: "member" }
+    ],
     schedule: {
         frequency: "daily",
         assignMode: "free",
@@ -355,8 +359,36 @@ function switchAppView(viewId) {
     if(viewId === 'new-sc' || viewId === 'ptw-list') {
         renderCustomFieldsInForm();
     }
+    if(viewId === 'team-chat') {
+        renderChatMessages();
+        fetchLatestCloudData(false);
+    }
 }
 window.switchAppView = switchAppView;
+
+async function fetchLatestCloudData(showNotify = false) {
+    if (ghDatabase && ghDatabase.owner && ghDatabase.repo) {
+        if(showNotify) {
+            const btn = document.querySelector('button[onclick="fetchLatestCloudData(true)"]');
+            if(btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-warning"></i> جاري السحب...`;
+        }
+        const res = await ghDatabase.verifyAndFetchRealCloudDatabase();
+        if (res.success && res.data) {
+            HSE_STATE = rehydrateLocalCredentials(res.data);
+            renderAllDynamicViews();
+            if(showNotify) alert("✅ تم سحب أحدث المراسلات والبيانات من قاعدة بيانات GitHub السحابية بنجاح!");
+        } else if(showNotify) {
+            alert("⚠️ تعذر الجلب السحابي: " + res.reason);
+        }
+        if(showNotify) {
+            const btn = document.querySelector('button[onclick="fetchLatestCloudData(true)"]');
+            if(btn) btn.innerHTML = `<i class="fa-solid fa-arrows-rotate text-success"></i> سحب أحدث المراسلات من السحابة`;
+        }
+    } else if(showNotify) {
+        alert("⚠️ لم يتم تعيين حساب ومستودع GitHub في الإعدادات بعد.");
+    }
+}
+window.fetchLatestCloudData = fetchLatestCloudData;
 
 function toggleSideDrawer(open) {
     const drawer = document.getElementById('sideDrawer');
@@ -417,6 +449,7 @@ function renderAllDynamicViews() {
     renderPendingSignatures();
     renderCustomFieldsList();
     renderCustomFieldsInForm();
+    if(typeof renderChatMessages === 'function') renderChatMessages();
     updateStatsCounters();
 }
 
@@ -961,28 +994,72 @@ async function handleAddCalendarEvent(e) {
 window.handleAddCalendarEvent = handleAddCalendarEvent;
 
 // 8. CHAT ENGINE & MISC
+function renderChatMessages() {
+    const box = document.getElementById("chatMessagesBox");
+    if (!box) return;
+    box.innerHTML = '';
+    const messages = HSE_STATE.chatMessages || [];
+    if (messages.length === 0) {
+        box.innerHTML = `<div style="text-align:center; color:var(--text-light); font-size:12px; padding:20px;">لا توجد رسائل مسجلة بغرفة العمليات حتى الآن.</div>`;
+        return;
+    }
+    const currentUserName = HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو");
+    
+    messages.forEach(msg => {
+        const msgDiv = document.createElement("div");
+        const isMe = (msg.sender === currentUserName) || (HSE_STATE.currentRole === 'manager' && msg.role === 'manager');
+        msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
+        
+        msgDiv.innerHTML = `
+            <strong style="color:${isMe ? 'inherit' : 'var(--primary-color)'}; display:block; font-size:11px;">${msg.sender} (${msg.role === 'manager' ? 'مدير السلامة' : 'عضو ميداني'}):</strong>
+            <span style="display:block; margin:2px 0;">${msg.text}</span>
+            <span style="font-size:10px; opacity:0.8; display:block; text-align:left; margin-top:2px;"><i class="fa-solid fa-check-double"></i> ${msg.time}</span>
+        `;
+        box.appendChild(msgDiv);
+    });
+    box.scrollTop = box.scrollHeight;
+}
+window.renderChatMessages = renderChatMessages;
+
 async function handleSendChatMessage(e) {
     e.preventDefault();
     const input = document.getElementById("chatInputText");
     const box = document.getElementById("chatMessagesBox");
     if(!input || !input.value.trim() || !box) return;
 
-    const msgDiv = document.createElement("div");
-    msgDiv.className = "message sent";
-    const senderName = HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو");
-    
-    msgDiv.innerHTML = `
-        <span class="sender" style="display:block; font-weight:800; font-size:11px;">${senderName}:</span>
-        <p style="margin:2px 0;">${input.value.trim()}</p>
-        <span class="time" style="font-size:10px; opacity:0.8; display:block; text-align:left;"><i class="fa-solid fa-check-double"></i> ${new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'})}</span>
-    `;
-    box.appendChild(msgDiv);
     const textStr = input.value.trim();
     input.value = '';
-    box.scrollTop = box.scrollHeight;
+
+    // Automatically pull latest records from cloud before sending to prevent overwriting recent team chats
+    if (ghDatabase && ghDatabase.owner && ghDatabase.repo) {
+        const pullRes = await ghDatabase.verifyAndFetchRealCloudDatabase();
+        if (pullRes && pullRes.success && pullRes.data) {
+            HSE_STATE = rehydrateLocalCredentials(pullRes.data);
+        }
+    }
+
+    if (!HSE_STATE.chatMessages) HSE_STATE.chatMessages = [];
+
+    const senderName = HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو");
     
-    // Auto sync message
-    await commitStateToCloud("إرسال رسالة بغرفة العمليات من: " + senderName);
+    const newMsg = {
+        id: "MSG-" + Date.now(),
+        sender: senderName,
+        text: textStr,
+        time: new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'}),
+        role: HSE_STATE.currentRole
+    };
+    HSE_STATE.chatMessages.push(newMsg);
+
+    renderChatMessages();
+    
+    const cloudRes = await commitStateToCloud("إرسال رسالة بغرفة العمليات من: " + senderName);
+    if (!cloudRes || !cloudRes.success) {
+        alert("⚠️ تم إظهار الرسالة بغرفتك المحلية، ولكن لم ينجح إرسالها لمخدمات GitHub السحابية لأن رمز التوكن (PAT Token) مفقود أو غير صالح.");
+    } else {
+        const bar = document.getElementById("cloudSyncDisplayBar");
+        if(bar) bar.innerHTML = `<i class="fa-solid fa-check-circle text-success"></i> تم رفع الرسالة للسحابة بنجاح`;
+    }
 }
 window.handleSendChatMessage = handleSendChatMessage;
 

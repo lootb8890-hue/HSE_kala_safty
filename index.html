@@ -403,24 +403,16 @@
 
             <!-- VIEW 5: TEAM CHAT & EMERGENCY NOTIFICATIONS -->
             <section id="view-team-chat" class="app-screen-view">
-                <div class="section-top-bar">
+                <div class="section-top-bar" style="flex-wrap: wrap; gap: 8px;">
                     <h4><i class="fa-solid fa-comments text-purple"></i> غرفة العمليات والتواصل الفوري</h4>
-                    <span class="status-pill green">متصل بالرمز السحابي</span>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fetchLatestCloudData(true)" style="padding: 4px 10px; border-radius: 20px; font-size: 11px;">
+                        <i class="fa-solid fa-arrows-rotate text-success"></i> سحب أحدث المراسلات من السحابة
+                    </button>
+                    <span class="status-pill green" style="margin-left: auto;">متصل بالرمز السحابي</span>
                 </div>
 
                 <div class="chat-viewport-box">
-                    <div class="chat-messages" id="chatMessagesBox">
-                        <div class="message received">
-                            <strong style="color:var(--primary-color); display:block; font-size:11px;">مدير السلامة العام:</strong>
-                            <span>يرجى من جميع الأعضاء الميدانيين التأكد من فحص طفايات الحريق بالمستودع الرئيسي وتأكيد التجاوب عبر النظام.</span>
-                            <span style="font-size:10px; color:var(--text-light); display:block; text-align:left; margin-top:2px;">08:15 ص</span>
-                        </div>
-                        <div class="message sent">
-                            <strong style="display:block; font-size:11px;">أحمد علي:</strong>
-                            <span>علم، تم التوجه إلى المستودع وسيتم رفع التقرير فور الانتهاء من الفحص.</span>
-                            <span style="font-size:10px; color:var(--text-light); display:block; text-align:left; margin-top:2px;">08:18 ص</span>
-                        </div>
-                    </div>
+                    <div class="chat-messages" id="chatMessagesBox"></div>
                     <form class="chat-input-bar" onsubmit="handleSendChatMessage(event); return false;">
                         <input type="text" id="chatInputText" class="form-control" placeholder="اكتب ملاحظتك أو تنبيهك الميداني هنا..." required style="min-height:38px;">
                         <button type="submit" class="btn btn-primary btn-sm" style="min-height:38px;"><i class="fa-solid fa-paper-plane"></i></button>
