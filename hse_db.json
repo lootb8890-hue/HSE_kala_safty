@@ -72,8 +72,9 @@
       "title": "فحص طفايات الحريق بالمستودع الشمالي",
       "assignedTo": "أحمد علي",
       "dueDate": "2024/05/25",
-      "status": "pending",
-      "report": null
+      "status": "completed",
+      "report": "تم الإنجاز وتأكيده مباشرة من العضو.",
+      "reportTime": "٣٠‏/٧‏/٢٠٢٦ - ١١:٢٥ م"
     },
     {
       "id": "TSK-102",
@@ -196,7 +197,13 @@
     "assignMode": "free",
     "targetMember": null
   },
-  "currentRole": "manager",
-  "currentMember": null,
+  "currentRole": "member",
+  "currentMember": {
+    "id": "M1",
+    "name": "أحمد علي",
+    "user": "ahmed_a",
+    "phone": "0501112233",
+    "pass": "123456"
+  },
   "currentDate": "2026-07-30T18:34:58.360Z"
 }
