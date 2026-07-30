@@ -46,8 +46,9 @@
       "title": "'j;piyhiyf",
       "assignedTo": "أحمد علي",
       "dueDate": "2026-07-07",
-      "status": "pending",
-      "report": null
+      "status": "completed",
+      "report": "تم الإنجاز وتأكيده مباشرة من العضو.",
+      "reportTime": "٣٠‏/٧‏/٢٠٢٦ - ١١:٢٢ م"
     },
     {
       "id": "TSK-795",
