@@ -55,8 +55,9 @@
       "title": "ohytuigig",
       "assignedTo": "أحمد علي",
       "dueDate": "2026-07-30",
-      "status": "pending",
-      "report": null
+      "status": "completed",
+      "report": "تم الإنجاز وتأكيده مباشرة من العضو.",
+      "reportTime": "٣٠‏/٧‏/٢٠٢٦ - ١١:٢٣ م"
     },
     {
       "id": "TSK-101",
