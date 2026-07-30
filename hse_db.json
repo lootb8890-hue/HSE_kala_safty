@@ -1,0 +1,128 @@
+{
+  "manager": {
+    "name": "مدير السلامة العام",
+    "username": "admin",
+    "phone": "0501234567",
+    "password": "admin",
+    "ghOwner": "lootb8890-hue",
+    "ghRepo": "HSE_kala_safty"
+  },
+  "members": [
+    {
+      "id": "M1",
+      "name": "أحمد علي",
+      "user": "ahmed_a",
+      "phone": "0501112233",
+      "pass": "123456"
+    },
+    {
+      "id": "M2",
+      "name": "سامي الجهني",
+      "user": "sami_j",
+      "phone": "0502223344",
+      "pass": "123456"
+    },
+    {
+      "id": "M3",
+      "name": "فهد السلامة",
+      "user": "fahad_s",
+      "phone": "0503334455",
+      "pass": "123456"
+    }
+  ],
+  "pendingSignatures": [
+    {
+      "id": "SC-2024-0001",
+      "type": "SC Report",
+      "title": "تسرب زيت في خط الإنتاج رقم (3)",
+      "author": "أحمد علي",
+      "date": "2024/05/21",
+      "priority": "عالية"
+    },
+    {
+      "id": "PTW-2024-015",
+      "type": "PTW",
+      "title": "أعمال لحام في خزان الوقود رقم (5)",
+      "author": "سامي الجهني",
+      "date": "2024/05/22",
+      "priority": "متوسّط"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "TSK-101",
+      "title": "فحص طفايات الحريق بالمستودع الشمالي",
+      "assignedTo": "أحمد علي",
+      "dueDate": "2024/05/25",
+      "status": "pending",
+      "report": null
+    },
+    {
+      "id": "TSK-102",
+      "title": "التأكد من سلامة مخارج الطوارئ بالدور الأول",
+      "assignedTo": "سامي الجهني",
+      "dueDate": "2024/05/26",
+      "status": "completed",
+      "report": "تم فحص جميع المخارج وتغيير مصباح الطوارئ التالف رقم 4."
+    }
+  ],
+  "customFields": {
+    "sc": [
+      {
+        "id": "CF-1",
+        "name": "رقم الماكينة المتضررة",
+        "type": "text"
+      },
+      {
+        "id": "CF-2",
+        "name": "هل تم إيقاف التشغيل مؤقتاً؟",
+        "type": "checkbox"
+      }
+    ],
+    "ptw": [
+      {
+        "id": "CF-3",
+        "name": "رقم جهاز قياس الغازات",
+        "type": "text"
+      }
+    ]
+  },
+  "calendarEvents": [
+    {
+      "id": "EV-1",
+      "title": "تمرين إخلاء سنوي",
+      "date": "2026-08-15",
+      "type": "drill"
+    },
+    {
+      "id": "EV-2",
+      "title": "تجديد شهادات OSHA للفريق",
+      "date": "2026-08-20",
+      "type": "training"
+    }
+  ],
+  "chatMessages": [
+    {
+      "id": "MSG-1",
+      "sender": "مدير السلامة العام",
+      "text": "يرجى من جميع الأعضاء الميدانيين التأكد من فحص طفايات الحريق بالمستودع الرئيسي وتأكيد التجاوب عبر النظام.",
+      "time": "08:15 ص",
+      "role": "manager"
+    },
+    {
+      "id": "MSG-2",
+      "sender": "أحمد علي",
+      "text": "علم، تم التوجه إلى المستودع وسيتم رفع التقرير فور الانتهاء من الفحص.",
+      "time": "08:18 ص",
+      "role": "member"
+    }
+  ],
+  "schedule": {
+    "frequency": "daily",
+    "assignMode": "free",
+    "targetMember": null
+  },
+  "currentRole": "manager",
+  "currentMember": null,
+  "currentDate": "2026-07-30T18:34:58.360Z"
+}
