@@ -71,7 +71,12 @@ function rehydrateLocalCredentials(loadedData) {
     // PRESERVE CURRENT LOGIN SESSION: Prevent cloud JSON from overriding active user's local role
     if (typeof HSE_STATE !== 'undefined' && HSE_STATE && HSE_STATE.currentRole) {
         loadedData.currentRole = HSE_STATE.currentRole;
-        loadedData.currentMember = HSE_STATE.currentMember;
+        if (HSE_STATE.currentMember && loadedData.members) {
+            const updMem = loadedData.members.find(m => m.id === HSE_STATE.currentMember.id || m.user === HSE_STATE.currentMember.user || m.phone === HSE_STATE.currentMember.phone || m.name === HSE_STATE.currentMember.name);
+            loadedData.currentMember = updMem || HSE_STATE.currentMember;
+        } else {
+            loadedData.currentMember = HSE_STATE.currentMember;
+        }
     }
     return loadedData || DEFAULT_STATE;
 }
@@ -535,15 +540,28 @@ function renderAllDynamicViews() {
     updateStatsCounters();
 }
 
+function normalizeArabicStr(str) {
+    if (!str) return "";
+    return str.toString().trim().toLowerCase()
+        .replace(/[أإآا]/g, 'ا')
+        .replace(/[ةه]/g, 'ه')
+        .replace(/[ىي]/g, 'ي')
+        .replace(/\s+/g, ' ');
+}
+
 function isTaskAssignedToMember(tsk, currentMem) {
     if (!tsk || !tsk.assignedTo) return false;
-    const assigned = tsk.assignedTo.trim().toLowerCase();
-    if (assigned === "الكل" || assigned === "all" || assigned === "جميع الأعضاء" || assigned === "الكل (جميع الأعضاء)") return true;
+    const assigned = normalizeArabicStr(tsk.assignedTo);
+    if (assigned.includes("كل") || assigned === "all" || assigned.includes("جميع")) return true;
     if (!currentMem) return false;
-    const name = (currentMem.name || "").trim().toLowerCase();
-    const user = (currentMem.user || "").trim().toLowerCase();
-    const id = (currentMem.id || "").trim().toLowerCase();
-    return assigned === name || assigned === user || assigned === id;
+    const name = normalizeArabicStr(currentMem.name);
+    const user = normalizeArabicStr(currentMem.user);
+    const id = normalizeArabicStr(currentMem.id);
+    const phone = normalizeArabicStr(currentMem.phone);
+    return (name && (assigned === name || assigned.includes(name) || name.includes(assigned))) ||
+           (user && (assigned === user || assigned.includes(user) || user.includes(assigned))) ||
+           (phone && (assigned === phone || assigned.includes(phone))) ||
+           (id && assigned === id);
 }
 
 function updateStatsCounters() {
@@ -776,8 +794,9 @@ function renderTasksList() {
                 <i class="fa-solid fa-calendar-day text-info"></i> <span>التاريخ المستهدف للإنجاز: <strong style="color:#0f172a;">${tsk.dueDate || 'فوري ومستعجل'}</strong></span>
             </div>
             ${reportBoxHtml}
+            ${(!isMgr && tsk.status === 'pending') || (isMgr && (tsk.status === 'completed' || tsk.status === 'not_completed')) ? `
             <div style="border-top:1px dashed #e2e8f0; margin-top:10px; padding-top:10px;">
-                ${!isMgr ? `
+                ${!isMgr && tsk.status === 'pending' ? `
                     <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
                         <button type="button" onclick="markTaskCompletedImmediately('${tsk.id}')" style="background:#16a34a; color:#ffffff; border:none; border-radius:6px; padding:6px 14px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:5px; cursor:pointer; transition:all 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.15);">
                             <i class="fa-solid fa-check"></i> <span>تم الإنجاز</span>
@@ -802,6 +821,7 @@ function renderTasksList() {
                     </div>
                 ` : ''}
             </div>
+            ` : ''}
         `;
         box.appendChild(div);
     });
