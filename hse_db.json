@@ -50,6 +50,14 @@
   ],
   "tasks": [
     {
+      "id": "TSK-106",
+      "title": ",.nbjbkhvcjgcxhfxb",
+      "assignedTo": "أحمد علي",
+      "dueDate": "2026-07-30",
+      "status": "pending",
+      "report": null
+    },
+    {
       "id": "TSK-862",
       "title": "'j;piyhiyf",
       "assignedTo": "أحمد علي",
@@ -194,13 +202,7 @@
     "assignMode": "free",
     "targetMember": null
   },
-  "currentRole": "member",
-  "currentMember": {
-    "id": "M1",
-    "name": "أحمد علي",
-    "user": "ahmed_a",
-    "phone": "0501112233",
-    "pass": "123456"
-  },
+  "currentRole": "manager",
+  "currentMember": null,
   "currentDate": "2026-07-30T18:34:58.360Z"
 }
