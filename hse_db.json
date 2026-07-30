@@ -30,16 +30,7 @@
       "pass": "123456"
     }
   ],
-  "pendingSignatures": [
-    {
-      "id": "PTW-2024-015",
-      "type": "PTW",
-      "title": "أعمال لحام في خزان الوقود رقم (5)",
-      "author": "سامي الجهني",
-      "date": "2024/05/22",
-      "priority": "متوسّط"
-    }
-  ],
+  "pendingSignatures": [],
   "tasks": [
     {
       "id": "TSK-106",
