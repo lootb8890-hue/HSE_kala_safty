@@ -964,25 +964,51 @@ body.app-body {
 }
 
 .message {
-    max-width: 80%;
-    padding: 10px 12px;
-    border-radius: var(--radius-md);
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 14px;
     font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    position: relative;
+    transition: var(--transition);
 }
 
+/* Sent Messages (My Messages) -> Right aligned in RTL */
 .message.sent {
-    background-color: var(--primary-light);
-    color: var(--text-main);
-    align-self: flex-start;
-    border-bottom-right-radius: 2px;
+    background: linear-gradient(135deg, #dcf8c6 0%, #b8f294 100%);
+    color: #113615;
+    align-self: flex-start; /* Aligns strictly to Right in RTL */
+    margin-right: 0;
+    margin-left: 18%;
+    border-top-right-radius: 3px;
+    border: 1px solid #99e072;
 }
 
+/* Received Messages (Others' Messages) -> Left aligned in RTL */
 .message.received {
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    align-self: flex-end;
-    border-bottom-left-radius: 2px;
+    background: #ffffff;
+    color: #1f2937;
+    align-self: flex-end; /* Aligns strictly to Left in RTL */
+    margin-left: 0;
+    margin-right: 18%;
+    border-top-left-radius: 3px;
+    border: 1px solid #cbd5e1;
+}
+
+/* Dark theme overrides for WhatsApp feel */
+body.dark-theme .message.sent {
+    background: linear-gradient(135deg, #056145 0%, #044e37 100%);
+    color: #ecfdf5;
+    border-color: #047857;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .message.received {
+    background: #1e293b;
+    color: #f8fafc;
+    border-color: #334155;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .chat-input-bar {

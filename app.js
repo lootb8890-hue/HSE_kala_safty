@@ -68,6 +68,11 @@ function rehydrateLocalCredentials(loadedData) {
             loadedData.manager.syncCode = ghDatabase.generateSyncCode(loadedData.manager.ghOwner, loadedData.manager.ghRepo, loadedData.manager.ghToken);
         }
     }
+    // PRESERVE CURRENT LOGIN SESSION: Prevent cloud JSON from overriding active user's local role
+    if (typeof HSE_STATE !== 'undefined' && HSE_STATE && HSE_STATE.currentRole) {
+        loadedData.currentRole = HSE_STATE.currentRole;
+        loadedData.currentMember = HSE_STATE.currentMember;
+    }
     return loadedData || DEFAULT_STATE;
 }
 
@@ -88,7 +93,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Default open on login selection screen
     showAuthSection('initial');
+    startLiveChatSyncEngine();
 });
+
+let liveChatSyncTimer = null;
+function startLiveChatSyncEngine() {
+    if (liveChatSyncTimer) clearInterval(liveChatSyncTimer);
+    liveChatSyncTimer = setInterval(async () => {
+        const chatView = document.getElementById("view-team-chat");
+        if (chatView && chatView.classList.contains("active") && ghDatabase && ghDatabase.owner && ghDatabase.repo) {
+            await fetchLatestCloudData(false, true);
+        }
+    }, 2500);
+}
+window.startLiveChatSyncEngine = startLiveChatSyncEngine;
 
 function initGitHubDatabase() {
     if (!ghDatabase) {
@@ -366,25 +384,37 @@ function switchAppView(viewId) {
 }
 window.switchAppView = switchAppView;
 
-async function fetchLatestCloudData(showNotify = false) {
+async function fetchLatestCloudData(showNotify = false, isSilent = false) {
     if (ghDatabase && ghDatabase.owner && ghDatabase.repo) {
-        if(showNotify) {
+        if(showNotify && !isSilent) {
             const btn = document.querySelector('button[onclick="fetchLatestCloudData(true)"]');
             if(btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-warning"></i> جاري السحب...`;
         }
         const res = await ghDatabase.verifyAndFetchRealCloudDatabase();
         if (res.success && res.data) {
+            const oldMsgCount = (HSE_STATE.chatMessages || []).length;
+            const newMsgCount = (res.data.chatMessages || []).length;
+            
             HSE_STATE = rehydrateLocalCredentials(res.data);
-            renderAllDynamicViews();
-            if(showNotify) alert("✅ تم سحب أحدث المراسلات والبيانات من قاعدة بيانات GitHub السحابية بنجاح!");
-        } else if(showNotify) {
+            
+            renderMembers();
+            renderTasksList();
+            renderPendingSignatures();
+            updateStatsCounters();
+            
+            if (!isSilent || oldMsgCount !== newMsgCount) {
+                if(typeof renderChatMessages === 'function') renderChatMessages();
+            }
+
+            if(showNotify && !isSilent) alert("✅ تم سحب أحدث المراسلات والبيانات من قاعدة بيانات GitHub السحابية بنجاح!");
+        } else if(showNotify && !isSilent) {
             alert("⚠️ تعذر الجلب السحابي: " + res.reason);
         }
-        if(showNotify) {
+        if(showNotify && !isSilent) {
             const btn = document.querySelector('button[onclick="fetchLatestCloudData(true)"]');
             if(btn) btn.innerHTML = `<i class="fa-solid fa-arrows-rotate text-success"></i> سحب أحدث المراسلات من السحابة`;
         }
-    } else if(showNotify) {
+    } else if(showNotify && !isSilent) {
         alert("⚠️ لم يتم تعيين حساب ومستودع GitHub في الإعدادات بعد.");
     }
 }
@@ -1003,17 +1033,21 @@ function renderChatMessages() {
         box.innerHTML = `<div style="text-align:center; color:var(--text-light); font-size:12px; padding:20px;">لا توجد رسائل مسجلة بغرفة العمليات حتى الآن.</div>`;
         return;
     }
-    const currentUserName = HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو");
+    const isManager = HSE_STATE.currentRole === "manager";
+    const currentUserName = isManager ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو");
     
     messages.forEach(msg => {
         const msgDiv = document.createElement("div");
-        const isMe = (msg.sender === currentUserName) || (HSE_STATE.currentRole === 'manager' && msg.role === 'manager');
+        const isMe = (isManager && msg.role === "manager") || 
+                     (!isManager && HSE_STATE.currentMember && msg.sender === HSE_STATE.currentMember.name) || 
+                     (msg.sender === currentUserName && currentUserName !== "عضو");
+                     
         msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
         
         msgDiv.innerHTML = `
-            <strong style="color:${isMe ? 'inherit' : 'var(--primary-color)'}; display:block; font-size:11px;">${msg.sender} (${msg.role === 'manager' ? 'مدير السلامة' : 'عضو ميداني'}):</strong>
-            <span style="display:block; margin:2px 0;">${msg.text}</span>
-            <span style="font-size:10px; opacity:0.8; display:block; text-align:left; margin-top:2px;"><i class="fa-solid fa-check-double"></i> ${msg.time}</span>
+            <strong style="color:${isMe ? '#113615' : 'var(--primary-color)'}; display:block; font-size:11px; font-weight:800; margin-bottom:2px;">${msg.sender} (${msg.role === 'manager' ? 'مدير السلامة' : 'عضو ميداني'}):</strong>
+            <span style="display:block; margin:3px 0; font-size:13px;">${msg.text}</span>
+            <span style="font-size:10px; opacity:0.75; display:block; text-align:${isMe ? 'right' : 'left'}; margin-top:3px;"><i class="fa-solid fa-check-double text-success"></i> ${msg.time}</span>
         `;
         box.appendChild(msgDiv);
     });
@@ -1030,17 +1064,10 @@ async function handleSendChatMessage(e) {
     const textStr = input.value.trim();
     input.value = '';
 
-    // Automatically pull latest records from cloud before sending to prevent overwriting recent team chats
-    if (ghDatabase && ghDatabase.owner && ghDatabase.repo) {
-        const pullRes = await ghDatabase.verifyAndFetchRealCloudDatabase();
-        if (pullRes && pullRes.success && pullRes.data) {
-            HSE_STATE = rehydrateLocalCredentials(pullRes.data);
-        }
-    }
-
     if (!HSE_STATE.chatMessages) HSE_STATE.chatMessages = [];
 
-    const senderName = HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو");
+    const isManager = HSE_STATE.currentRole === "manager";
+    const senderName = isManager ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو");
     
     const newMsg = {
         id: "MSG-" + Date.now(),
@@ -1053,6 +1080,7 @@ async function handleSendChatMessage(e) {
 
     renderChatMessages();
     
+    // Instant cloud commit without pre-pull delay
     const cloudRes = await commitStateToCloud("إرسال رسالة بغرفة العمليات من: " + senderName);
     if (!cloudRes || !cloudRes.success) {
         alert("⚠️ تم إظهار الرسالة بغرفتك المحلية، ولكن لم ينجح إرسالها لمخدمات GitHub السحابية لأن رمز التوكن (PAT Token) مفقود أو غير صالح.");

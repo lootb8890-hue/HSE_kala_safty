@@ -128,12 +128,12 @@ class GitHubDatabase {
 
         try {
             const url = `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${this.filePath}?_ts=${Date.now()}`;
-            let response = await fetch(url, { method: 'GET', headers: headers });
+            let response = await fetch(url, { method: 'GET', headers: headers, cache: 'no-store' });
 
             // If token is invalid or expired (401/403) and we used Authorization, retry anonymously for public repos!
             if ((response.status === 401 || response.status === 403) && headers['Authorization']) {
                 const anonHeaders = { 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' };
-                const anonResponse = await fetch(url, { method: 'GET', headers: anonHeaders });
+                const anonResponse = await fetch(url, { method: 'GET', headers: anonHeaders, cache: 'no-store' });
                 if (anonResponse.ok || anonResponse.status === 404) {
                     response = anonResponse;
                 }
