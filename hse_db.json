@@ -139,6 +139,14 @@
       "time": "١٠:٠١ م",
       "role": "member",
       "attachment": null
+    },
+    {
+      "id": "MSG-1785438123583",
+      "sender": "مدير السلامة العام",
+      "text": "ugiut",
+      "time": "١٠:٠٢ م",
+      "role": "manager",
+      "attachment": null
     }
   ],
   "schedule": {
@@ -146,13 +154,7 @@
     "assignMode": "free",
     "targetMember": null
   },
-  "currentRole": "member",
-  "currentMember": {
-    "id": "M1",
-    "name": "أحمد علي",
-    "user": "ahmed_a",
-    "phone": "0501112233",
-    "pass": "123456"
-  },
+  "currentRole": "manager",
+  "currentMember": null,
   "currentDate": "2026-07-30T18:34:58.360Z"
 }
