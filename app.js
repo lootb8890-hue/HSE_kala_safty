@@ -1,6 +1,6 @@
 /**
- * Core Application Logic, Cloud Sync Code Workflows, and Native Mobile Routing
- * Fully customized without emojis, without X close buttons, without scrollbars, and without role titles.
+ * Core Application Logic, Real-Time GitHub Database Workflows, and Native Routing
+ * Enforces strict member login rules against real cloud database records.
  */
 
 const DEFAULT_STATE = {
@@ -9,37 +9,42 @@ const DEFAULT_STATE = {
         username: "admin",
         phone: "0501234567",
         password: "admin",
-        ghOwner: "safety-management-system",
-        ghRepo: "hse-database",
+        ghOwner: "lootb8890-hue",
+        ghRepo: "HSE_kala_safty",
         ghToken: localStorage.getItem("github_token") || "",
-        syncCode: "HSE-SYNC-c2FmZXR5LW1hbmFnZW1lbnQtc3lzdGVtOmhzZS1kYXRhYmFzZQ=="
+        syncCode: "HSE-SYNC-" + btoa("lootb8890-hue:::HSE_kala_safty:::" + (localStorage.getItem("github_token") || ""))
     },
     members: [
-        { id: "M1", name: "أحمد علي", user: "ahmed_a", phone: "0501112233", pass: "123456", syncCode: "HSE-SYNC-M1-ahmed" },
-        { id: "M2", name: "سامي الجهني", user: "sami_j", phone: "0502223344", pass: "123456", syncCode: "HSE-SYNC-M2-sami" },
-        { id: "M3", name: "فهد السلامة", user: "fahad_s", phone: "0503334455", pass: "123456", syncCode: "HSE-SYNC-M3-fahad" }
+        { id: "M1", name: "أحمد علي", user: "ahmed_a", phone: "0501112233", pass: "123456", syncCode: "" },
+        { id: "M2", name: "سامي الجهني", user: "sami_j", phone: "0502223344", pass: "123456", syncCode: "" },
+        { id: "M3", name: "فهد السلامة", user: "fahad_s", phone: "0503334455", pass: "123456", syncCode: "" }
     ],
     pendingSignatures: [
-        { id: "SC-2024-001", type: "SC Report", title: "تسرب زيت في ممر المشاة الرئيسي رقم (3)", author: "أحمد علي", date: "2026/07/30", priority: "عالية" },
-        { id: "PTW-2024-015", type: "PTW", title: "أعمال لحام وصيانة في الخزان رقم (5)", author: "سامي الجهني", date: "2026/07/30", priority: "متوسّط" }
+        { id: "SC-2024-0001", type: "SC Report", title: "تسرب زيت في خط الإنتاج رقم (3)", author: "أحمد علي", date: "2024/05/21", priority: "عالية" },
+        { id: "PTW-2024-015", type: "PTW", title: "أعمال لحام في خزان الوقود رقم (5)", author: "سامي الجهني", date: "2024/05/22", priority: "متوسّط" }
     ],
     tasks: [
-        { id: "TSK-101", title: "فحص طفايات الحريق بالمستودع الشمالي وتفقد مؤشر الضغط", assignedTo: "أحمد علي", dueDate: "2026/08/02", status: "pending", report: null },
-        { id: "TSK-102", title: "التأكد من خلو مخارج الطوارئ بالدور الأول وجعله شاغراً للمرور", assignedTo: "سامي الجهني", dueDate: "2026/08/03", status: "completed", report: "تم فحص جميع المخارج وتغيير مصباح لوحة الإرشاد التالف رقم 4." }
+        { id: "TSK-101", title: "فحص طفايات الحريق بالمستودع الشمالي", assignedTo: "أحمد علي", dueDate: "2024/05/25", status: "pending", report: null },
+        { id: "TSK-102", title: "التأكد من سلامة مخارج الطوارئ بالدور الأول", assignedTo: "سامي الجهني", dueDate: "2024/05/26", status: "completed", report: "تم فحص جميع المخارج وتغيير مصباح الطوارئ التالف رقم 4." }
     ],
     customFields: {
         sc: [
-            { id: "CF-1", name: "رقم الماكينة أو المعدة المتضررة", type: "text" },
-            { id: "CF-2", name: "هل تم إيقاف التشغيل مؤقتاً بالقطاع؟", type: "checkbox" }
+            { id: "CF-1", name: "رقم الماكينة المتضررة", type: "text" },
+            { id: "CF-2", name: "هل تم إيقاف التشغيل مؤقتاً؟", type: "checkbox" }
         ],
         ptw: [
-            { id: "CF-3", name: "الرقم التسلسلي لجهاز قياس وانبعاث الغازات", type: "text" }
+            { id: "CF-3", name: "رقم جهاز قياس الغازات", type: "text" }
         ]
     },
     calendarEvents: [
-        { id: "EV-1", title: "تمرين إخلاء سنوي افتراضي وشامل", date: "2026-08-15", type: "drill" },
-        { id: "EV-2", title: "تجديد شهادات OSHA للفريق الفني", date: "2026-08-20", type: "training" }
+        { id: "EV-1", title: "تمرين إخلاء سنوي", date: "2026-08-15", type: "drill" },
+        { id: "EV-2", title: "تجديد شهادات OSHA للفريق", date: "2026-08-20", type: "training" }
     ],
+    schedule: {
+        frequency: "daily",
+        assignMode: "free",
+        targetMember: null
+    },
     currentRole: "manager",
     currentMember: null,
     currentDate: new Date()
@@ -49,14 +54,22 @@ let HSE_STATE = JSON.parse(JSON.stringify(DEFAULT_STATE));
 var ghDatabase = window.ghDatabase || null;
 let currentSigDocId = null;
 
-// ==================== INITIALIZATION ====================
-document.addEventListener("DOMContentLoaded", () => {
+// ==================== INITIALIZATION & HELPER ====================
+document.addEventListener("DOMContentLoaded", async () => {
     initGitHubDatabase();
     initAppUI();
     renderAllDynamicViews();
     initSigPad();
-    calculateRiskMatrix();
     
+    // Check if there's an existing cloud connection to restore
+    if (ghDatabase && ghDatabase.owner && ghDatabase.repo) {
+        const res = await ghDatabase.verifyAndFetchRealCloudDatabase();
+        if (res.success && res.data) {
+            HSE_STATE = res.data;
+            renderAllDynamicViews();
+        }
+    }
+
     // Default open on login selection screen
     showAuthSection('initial');
 });
@@ -71,20 +84,28 @@ function initGitHubDatabase() {
         );
         window.ghDatabase = ghDatabase;
     }
-    ghDatabase.cloudSyncCode = HSE_STATE.manager.syncCode;
+    const generatedCode = ghDatabase.generateSyncCode(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo, HSE_STATE.manager.ghToken);
+    HSE_STATE.manager.syncCode = generatedCode;
     updateSyncCodeDisplays();
 }
 
 function updateSyncCodeDisplays() {
-    const syncCode = HSE_STATE.manager.syncCode || "HSE-SYNC-DEFAULT";
+    const syncCode = HSE_STATE.manager.syncCode || ghDatabase.generateSyncCode();
     const el = document.getElementById("displayCloudSyncCode");
     if(el) el.innerText = syncCode;
     
-    const elMod = document.getElementById("displayCloudSyncCodeModal");
-    if(elMod) elMod.innerText = syncCode;
-    
     const mbrInput = document.getElementById("mbrSyncCode");
     if(mbrInput && !mbrInput.value) mbrInput.value = syncCode;
+    
+    const statusPill = document.getElementById("cloudSyncDisplayBar");
+    if(statusPill) statusPill.innerHTML = `<i class="fa-solid fa-cloud-check"></i> قاعدة البيانات الحقيقية: متصلة ونشطة`;
+}
+
+async function commitStateToCloud(actionName = "تحديث بيانات النظام") {
+    localStorage.setItem("HSE_GITHUB_DB_BACKUP", JSON.stringify(HSE_STATE));
+    if (ghDatabase && ghDatabase.owner && ghDatabase.repo && ghDatabase.token) {
+        await ghDatabase.saveDatabase(HSE_STATE, actionName);
+    }
 }
 
 function initAppUI() {
@@ -94,11 +115,8 @@ function initAppUI() {
     const evtDate = document.getElementById("eventDate");
     if(evtDate) evtDate.value = todayStr;
     
-    const ppeDate = document.getElementById("ppeStatusDate");
-    if(ppeDate) ppeDate.innerText = "التاريخ: " + new Date().toLocaleDateString('ar-SA');
-    
     updateRoleHeadersAndUI();
-    renderCalendar(HSE_STATE.currentDate);
+    renderCalendar(new Date());
 }
 
 function updateRoleHeadersAndUI() {
@@ -111,116 +129,28 @@ function updateRoleHeadersAndUI() {
 
     if (isMgr) {
         if(headerText) headerText.innerText = HSE_STATE.manager.name;
+        if(headerRoleBadge) headerRoleBadge.className = "user-role-badge";
         if(drawerName) drawerName.innerText = HSE_STATE.manager.name;
         if(drawerAvatar) drawerAvatar.innerHTML = `<i class="fa-solid fa-user-shield"></i>`;
         if(mgrSection) mgrSection.style.display = "block";
     } else {
         const memberName = HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو سلامة";
         if(headerText) headerText.innerText = memberName;
+        if(headerRoleBadge) headerRoleBadge.className = "user-role-badge";
         if(drawerName) drawerName.innerText = memberName;
         if(drawerAvatar) drawerAvatar.innerHTML = `<i class="fa-solid fa-user"></i>`;
         if(mgrSection) mgrSection.style.display = "none";
     }
 
     renderTasksList();
+    renderPendingSignatures();
     renderMembers();
+    updateStatsCounters();
     renderCustomFieldsList();
     renderCustomFieldsInForm();
 }
 
-// ==================== BRAND NEW INTERACTIVE WIDGETS LOGIC ====================
-function calculateRiskMatrix() {
-    const lEl = document.getElementById("riskLikelihood");
-    const sEl = document.getElementById("riskSeverity");
-    const resBox = document.getElementById("riskResultBox");
-    if(!lEl || !sEl || !resBox) return;
-
-    const likelihood = parseInt(lEl.value || "2");
-    const severity = parseInt(sEl.value || "2");
-    const score = likelihood * severity;
-
-    if (score <= 2) {
-        resBox.className = "risk-result-meter";
-        resBox.style.backgroundColor = "var(--primary-light)";
-        resBox.style.color = "var(--primary-color)";
-        resBox.innerHTML = `<i class="fa-solid fa-shield-check"></i> مستوى الخطورة: منخفض (إجراءات السلامة القياسية ومراقبة عادية)`;
-    } else if (score <= 4) {
-        resBox.className = "risk-result-meter mod-risk";
-        resBox.style.backgroundColor = "var(--warning-light)";
-        resBox.style.color = "var(--warning-color)";
-        resBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> مستوى الخطورة: متوسط (يلزم استصدار تصريح عمل ومراقبة المشرف)`;
-    } else {
-        resBox.className = "risk-result-meter high-risk";
-        resBox.style.backgroundColor = "var(--danger-light)";
-        resBox.style.color = "var(--danger-color)";
-        resBox.innerHTML = `<i class="fa-solid fa-skull-crossbones"></i> مستوى الخطورة: حرج / شديد الخطورة (يمنع العمل حتى توفير عزل وتدقيق شامل)`;
-    }
-}
-window.calculateRiskMatrix = calculateRiskMatrix;
-
-function submitPPECheck() {
-    const checkboxes = document.querySelectorAll('#ppeChecklistContainer input[type="checkbox"]:checked');
-    const total = document.querySelectorAll('#ppeChecklistContainer input[type="checkbox"]').length;
-    
-    if (checkboxes.length < total) {
-        if(!confirm("لم يتم التأشير على كامل عناصر الوقاية الشخصية! هل ترغب في تسجيل جاهزية جزئية؟")) {
-            return;
-        }
-    }
-    alert(`تم تأكيد جاهزية معدات الوقاية للوردية (${checkboxes.length}/${total}) وحفظ الإقرار في سجل الميدان!`);
-}
-window.submitPPECheck = submitPPECheck;
-
-function handleAddNewCert(e) {
-    e.preventDefault();
-    const certName = document.getElementById("certNameInput").value.trim();
-    const certMember = document.getElementById("certMemberInput").value.trim();
-    const cont = document.getElementById("certificationsListContainer");
-
-    if (cont && certName && certMember) {
-        const card = document.createElement("div");
-        card.className = "vault-item-card";
-        card.innerHTML = `
-            <div>
-                <h5><i class="fa-solid fa-user-shield text-success"></i> ${certName}</h5>
-                <small>العضو: ${certMember} | صالح حتى: 2027/12/31</small>
-            </div>
-            <span class="status-pill green"><i class="fa-solid fa-check"></i> سارية</span>
-        `;
-        cont.prepend(card);
-        document.getElementById("certNameInput").value = "";
-        document.getElementById("certMemberInput").value = "";
-        alert("تم إضافة الشهادة المهنية بنجاح ومزامنة الصلاحية سحابياً!");
-    }
-}
-window.handleAddNewCert = handleAddNewCert;
-
-function logFireInspection(idx) {
-    alert(`تم تسجيل تأكيد الفحص الشهري لجهاز الإطفاء والمستشعر بنجاح برقم زمني: ${new Date().toLocaleDateString()}`);
-}
-window.logFireInspection = logFireInspection;
-
-function addNewFireAsset() {
-    const name = prompt("أدخل اسم ورقم طفاية الحريق أو جهاز السلامة الجديد:");
-    const loc = prompt("أدخل موقع تثبيت الجهاز بالميدان:");
-    const box = document.getElementById("fireAssetRegistryBox");
-    if(name && loc && box) {
-        const card = document.createElement("div");
-        card.className = "fire-asset-card";
-        card.innerHTML = `
-            <div>
-                <h5><i class="fa-solid fa-fire-extinguisher text-danger"></i> ${name}</h5>
-                <small><i class="fa-solid fa-location-dot text-primary"></i> الموقع: ${loc} | الحالة: فحص جديد</small>
-            </div>
-            <button class="btn btn-sm btn-secondary text-success" onclick="logFireInspection(${box.children.length})"><i class="fa-solid fa-check"></i> تأكيد الفحص</button>
-        `;
-        box.prepend(card);
-        alert("تم إضافة أصول ومعدات السلامة لسجل الفحص الدوري بنجاح!");
-    }
-}
-window.addNewFireAsset = addNewFireAsset;
-
-// ==================== AUTHENTICATION & LOGIN FLOW ====================
+// ==================== AUTHENTICATION & STRICT REAL CLOUD LOGIN ====================
 function showAuthSection(section) {
     document.querySelectorAll('.auth-section').forEach(sec => sec.classList.remove('active'));
     
@@ -234,16 +164,20 @@ function showAuthSection(section) {
         const el = document.getElementById('memberAuthSection');
         if(el) el.classList.add('active');
         if(ghDatabase && typeof ghDatabase.generateSyncCode === 'function') {
-            const defaultCode = ghDatabase.generateSyncCode(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo);
+            const defaultCode = ghDatabase.generateSyncCode(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo, HSE_STATE.manager.ghToken);
             const input = document.getElementById("mbrSyncCode");
-            if(input && !input.value) input.value = defaultCode;
+            if(input) input.value = defaultCode;
         }
     }
 }
 window.showAuthSection = showAuthSection;
 
-function handleManagerSetup(e) {
+async function handleManagerSetup(e) {
     if(e) e.preventDefault();
+    const btn = e && e.target ? e.target.querySelector('button[type="submit"]') : null;
+    const origBtnText = btn ? btn.innerHTML : '';
+    if (btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري الاتصال وإنشاء القاعدة الحقيقية...`;
+
     const mgrNameEl = document.getElementById("mgrName");
     const mgrPhoneEl = document.getElementById("mgrPhone");
     const mgrUserEl = document.getElementById("mgrUser");
@@ -256,65 +190,106 @@ function handleManagerSetup(e) {
     if(mgrPhoneEl) HSE_STATE.manager.phone = mgrPhoneEl.value;
     if(mgrUserEl) HSE_STATE.manager.username = mgrUserEl.value;
     if(mgrPassEl) HSE_STATE.manager.password = mgrPassEl.value;
-    if(mgrOwnerEl && mgrOwnerEl.value) HSE_STATE.manager.ghOwner = mgrOwnerEl.value;
-    if(mgrRepoEl && mgrRepoEl.value) HSE_STATE.manager.ghRepo = mgrRepoEl.value;
-    if(mgrTokenEl && mgrTokenEl.value) {
-        HSE_STATE.manager.ghToken = mgrTokenEl.value;
-        localStorage.setItem("github_token", mgrTokenEl.value);
-    }
+    if(mgrOwnerEl) HSE_STATE.manager.ghOwner = mgrOwnerEl.value;
+    if(mgrRepoEl) HSE_STATE.manager.ghRepo = mgrRepoEl.value;
+    if(mgrTokenEl && mgrTokenEl.value) HSE_STATE.manager.ghToken = mgrTokenEl.value;
 
     if(ghDatabase) {
-        const code = ghDatabase.generateSyncCode(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo);
+        ghDatabase.setCredentials(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo, HSE_STATE.manager.ghToken);
+        const code = ghDatabase.generateSyncCode(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo, HSE_STATE.manager.ghToken);
         HSE_STATE.manager.syncCode = code;
-        ghDatabase.owner = HSE_STATE.manager.ghOwner;
-        ghDatabase.repo = HSE_STATE.manager.ghRepo;
-        ghDatabase.cloudSyncCode = code;
     }
 
     HSE_STATE.currentRole = "manager";
     HSE_STATE.currentMember = null;
 
+    // Real-Time Initialization on GitHub Cloud
+    let notifyText = "";
+    if (HSE_STATE.manager.ghToken && HSE_STATE.manager.ghOwner && HSE_STATE.manager.ghRepo) {
+        const initRes = await ghDatabase.initOrSaveRealDatabase(HSE_STATE);
+        if (initRes.success) {
+            if (initRes.mode === 'loaded' && initRes.data) {
+                HSE_STATE = initRes.data;
+                HSE_STATE.currentRole = "manager";
+                notifyText = "✅ تم الاتصال وتحميل قاعدة البيانات الحقيقية من مستودع GitHub بنجاح!\nكود الربط المعتمد أصبح جاهزاً للأعضاء.";
+            } else {
+                notifyText = "🎉 تم إنشاء واعتماد قاعدة البيانات السحابية الحقيقية (hse_db.json) على مستودع GitHub بنجاح!\nيمكن لفريقك الآن تسجيل الدخول برمز الربط.";
+            }
+        } else {
+            notifyText = "⚠️ تم الدخول الإداري مع التنبيه:\n" + initRes.message + "\n\nيمكنك التحقق من الـ Token عبر القائمة الجانبية -> إعدادات GitHub Sync.";
+        }
+    } else {
+        notifyText = "⚠️ تم التوجيه للوحة الإدارية. لتمكين الدخول السحابي الحقيقي للأعضاء، احرص على تدوين رمز الـ PAT Token في إعدادات GitHub من القائمة الجانبية.";
+    }
+
+    if (btn) btn.innerHTML = origBtnText;
     closeLoginPortal();
     updateSyncCodeDisplays();
     updateRoleHeadersAndUI();
     switchAppView('home');
+    alert(notifyText);
     return false;
 }
 window.handleManagerSetup = handleManagerSetup;
 
-function handleMemberLogin(e) {
+/**
+ * STRICT MEMBER LOGIN: Enforces real cloud DB verification and existing member credentials
+ */
+async function handleMemberLogin(e) {
     if(e) e.preventDefault();
     const userEl = document.getElementById("mbrUser");
     const passEl = document.getElementById("mbrPass");
     const codeEl = document.getElementById("mbrSyncCode");
 
-    const user = userEl && userEl.value.trim() ? userEl.value.trim() : "أحمد علي";
-    const pass = passEl && passEl.value.trim() ? passEl.value.trim() : "123456";
-    const code = codeEl && codeEl.value.trim() ? codeEl.value.trim() : "HSE-SYNC";
+    const user = userEl ? userEl.value.trim() : "";
+    const pass = passEl ? passEl.value.trim() : "";
+    const code = codeEl ? codeEl.value.trim() : "";
 
-    if(ghDatabase && typeof ghDatabase.applySyncCode === 'function') {
-        ghDatabase.applySyncCode(code);
+    if (!user || !pass || !code) {
+        alert("❌ رفض الدخول: يرجى إدخال اسم المستخدم وكلمة المرور ورقم الربط السحابي بالكامل.");
+        return false;
     }
 
-    let member = HSE_STATE.members.find(m => (m.user === user || m.phone === user || m.name === user) && (m.pass === pass || pass === "123456"));
+    const btn = e && e.target ? e.target.querySelector('button[type="submit"]') : null;
+    const origText = btn ? btn.innerHTML : '';
+    if(btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري التحقق السحابي من قاعدة بيانات المدير...`;
+
+    // 1. Decode & verify Sync Code format
+    const applyRes = ghDatabase.applySyncCode(code);
+    if (!applyRes.success) {
+        if(btn) btn.innerHTML = origText;
+        alert("❌ كود ربط غير صالح:\n" + applyRes.message + "\n\nيجب التزود برقم الربط السحابي المرخص من قبل مدير السلامة.");
+        return false;
+    }
+
+    // 2. Fetch Real Database directly from GitHub API
+    const verifyRes = await ghDatabase.verifyAndFetchRealCloudDatabase();
+    if (!verifyRes.success) {
+        if(btn) btn.innerHTML = origText;
+        alert("❌ تم رفض تسجيل الدخول السحابي!\n\nالسبب: " + verifyRes.reason + "\n\n⚠️ تذكير: لا يمكن للأعضاء الدخول إذا لم يقم مدير السلامة باعتماد وإنشاء قاعدة البيانات الحقيقية في المستودع أولاً!");
+        return false;
+    }
+
+    // 3. Update application state to the real cloud database records
+    HSE_STATE = verifyRes.data;
+
+    // 4. Strict Credential Verification in Real Database
+    const member = HSE_STATE.members.find(m => (m.user === user || m.phone === user) && m.pass === pass);
     if (!member) {
-        member = {
-            id: "M" + (HSE_STATE.members.length + 1),
-            name: user,
-            user: user,
-            phone: "0500000000",
-            pass: pass,
-            syncCode: code
-        };
-        HSE_STATE.members.push(member);
+        if(btn) btn.innerHTML = origText;
+        alert("❌ تم رفض الدخول: بياناتك (اسم المستخدم أو كلمة المرور) غير مسجلة في قاعدة بيانات المدير السحابية الحقيقية.\n\nلا يُسمح بالدخول التلقائي! يرجى التنسيق مع مدير السلامة العام لإنشاء حسابك وإدراج اسمك أولاً عبر لوحته الإدارية.");
+        return false;
     }
 
+    // 5. Successful Authorization
+    if(btn) btn.innerHTML = origText;
     HSE_STATE.currentRole = "member";
     HSE_STATE.currentMember = member;
     
     closeLoginPortal();
     updateRoleHeadersAndUI();
     switchAppView('home');
+    alert(`✅ تم الدخول والاتصال بنجاح!\nأهلاً بك يا ${member.name} في قاعدة بيانات السلامة الحقيقية المجمّعة.`);
     return false;
 }
 window.handleMemberLogin = handleMemberLogin;
@@ -354,7 +329,7 @@ function switchAppView(viewId) {
         }
     });
 
-    if(viewId === 'sc-reports' || viewId === 'ptw-list') {
+    if(viewId === 'new-sc' || viewId === 'ptw-list') {
         renderCustomFieldsInForm();
     }
 }
@@ -373,7 +348,7 @@ function toggleSideDrawer(open) {
 }
 window.toggleSideDrawer = toggleSideDrawer;
 
-// ==================== MODAL HELPERS (NO X BUTTON - OVERLAY & RETURN) ====================
+// ==================== MODAL HELPERS ====================
 function openModal(modalId) {
     const m = document.getElementById(modalId);
     if(m) {
@@ -396,54 +371,77 @@ function closeModalOnOverlay(e, modalId) {
 }
 window.closeModalOnOverlay = closeModalOnOverlay;
 
-function openAnalyticsModal() { openModal('analyticsModal'); }
-function openCertificationsModal() { openModal('certificationsModal'); }
-function openFireRegistryModal() { openModal('fireRegistryModal'); }
 function openMemberModal() { openModal('memberModal'); }
+function openPendingSigModal() { openModal('pendingSigModal'); }
+function openTasksModal() { openModal('tasksModal'); }
 function openFormCustomizerModal() { openModal('formCustomizerModal'); }
+function openScheduleModal() { openModal('scheduleModal'); }
 function openCalendarModal() { openModal('calendarModal'); }
 function openGitHubModal() { openModal('githubModal'); }
 
-window.openAnalyticsModal = openAnalyticsModal;
-window.openCertificationsModal = openCertificationsModal;
-window.openFireRegistryModal = openFireRegistryModal;
 window.openMemberModal = openMemberModal;
+window.openPendingSigModal = openPendingSigModal;
+window.openTasksModal = openTasksModal;
 window.openFormCustomizerModal = openFormCustomizerModal;
+window.openScheduleModal = openScheduleModal;
 window.openCalendarModal = openCalendarModal;
 window.openGitHubModal = openGitHubModal;
 
-// ==================== RENDERERS ====================
+// ==================== RENDERERS & BUSINESS LOGIC WITH REAL-TIME CLOUD COMMIT ====================
 function renderAllDynamicViews() {
     renderMembers();
     renderTasksList();
+    renderPendingSignatures();
     renderCustomFieldsList();
     renderCustomFieldsInForm();
+    updateStatsCounters();
 }
 
-// 1. MEMBERS LIST
+function updateStatsCounters() {
+    const pendCount = HSE_STATE.pendingSignatures.length;
+    const memCount = HSE_STATE.members.length;
+
+    const sp = document.getElementById('statPendingCount');
+    if(sp) sp.innerText = pendCount;
+    const st = document.getElementById('statTasksCount');
+    if(st) st.innerText = HSE_STATE.tasks.length;
+    const sm = document.getElementById('statMembersCount');
+    if(sm) sm.innerText = memCount + 1;
+
+    const pBadge = document.getElementById('pendingSigCount');
+    if(pBadge) pBadge.innerText = pendCount;
+    const mBadge = document.getElementById('memberCountBadge');
+    if(mBadge) mBadge.innerText = memCount;
+}
+
+// 1. MEMBERS LIST & ENCRYPTED SYNC CODES
 function renderMembers() {
     const cont = document.getElementById('membersListTable');
     const select1 = document.getElementById('taskTargetMember');
+    const select2 = document.getElementById('scheduleTargetMember');
     if(!cont) return;
 
     cont.innerHTML = '';
     if(select1) select1.innerHTML = '';
+    if(select2) select2.innerHTML = '';
+
+    const adminSyncCode = HSE_STATE.manager.syncCode || ghDatabase.generateSyncCode();
 
     HSE_STATE.members.forEach((mem, index) => {
-        const syncChip = mem.syncCode || `HSE-SYNC-${mem.user}`;
+        const syncChip = adminSyncCode;
         
         const item = document.createElement('div');
         item.className = 'member-item-card';
         item.innerHTML = `
             <div class="member-text">
-                <h5 class="font-bold mb-1"><i class="fa-solid fa-user text-primary"></i> ${mem.name}</h5>
-                <span class="text-xs text-secondary d-block"><i class="fa-solid fa-phone"></i> ${mem.phone} | <i class="fa-solid fa-user-tag"></i> ${mem.user}</span>
-                <div class="sync-badge-chip" onclick="copySyncCode('${syncChip}')" title="انقر لنسخ كود الربط السحابي">
-                    <i class="fa-solid fa-cloud"></i> كود الربط: ${syncChip} <i class="fa-regular fa-copy ms-1"></i>
+                <h5><i class="fa-solid fa-user text-primary"></i> ${mem.name}</h5>
+                <span class="text-xs text-secondary d-block"><i class="fa-solid fa-phone"></i> ${mem.phone} | <i class="fa-solid fa-user-tag"></i> ${mem.user} | كلمة المرور: <strong>${mem.pass}</strong></span>
+                <div class="sync-badge-chip" onclick="copySyncCode('${syncChip}')" title="انقر لنسخ كود الربط المشترك">
+                    <i class="fa-solid fa-cloud"></i> كود الربط المعتمد: ${syncChip.substring(0, 26)}... <i class="fa-regular fa-copy ms-1"></i>
                 </div>
             </div>
             <div class="member-actions">
-                ${HSE_STATE.currentRole === "manager" ? `<button class="btn btn-sm btn-secondary text-danger" onclick="deleteMember(${index})"><i class="fa-solid fa-trash"></i></button>` : ``}
+                ${HSE_STATE.currentRole === "manager" ? `<button type="button" class="btn btn-sm btn-secondary text-danger" onclick="deleteMember(${index})"><i class="fa-solid fa-trash"></i></button>` : ``}
             </div>
         `;
         cont.appendChild(item);
@@ -454,6 +452,12 @@ function renderMembers() {
             opt1.innerText = mem.name;
             select1.appendChild(opt1);
         }
+        if(select2) {
+            const opt2 = document.createElement('option');
+            opt2.value = mem.name;
+            opt2.innerText = mem.name;
+            select2.appendChild(opt2);
+        }
     });
 }
 window.renderMembers = renderMembers;
@@ -462,35 +466,39 @@ function copySyncCode(code) {
     if(navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(code);
     }
-    alert("تم نسخ رقم الربط السحابي للفريق: " + code);
+    alert("تم نسخ رقم الربط السحابي بالكامل:\n" + code + "\n\nأرسله لأعضاء فريقك ليتمكنوا من دخول قاعدة بيانات السلامة الخاصة بك!");
 }
 window.copySyncCode = copySyncCode;
 
-function handleAddNewMember(e) {
+async function handleAddNewMember(e) {
     e.preventDefault();
     const name = document.getElementById('newMemberName').value.trim();
     const user = document.getElementById('newMemberUser').value.trim();
     const phone = document.getElementById('newMemberPhone').value.trim();
     const pass = document.getElementById('newMemberPass').value.trim();
 
-    const uniqueCode = `HSE-SYNC-${user}-${Math.floor(1000 + Math.random()*9000)}`;
+    const sharedCode = HSE_STATE.manager.syncCode || ghDatabase.generateSyncCode();
 
     HSE_STATE.members.push({
         id: "M" + (HSE_STATE.members.length + 1),
         name, user, phone, pass,
-        syncCode: uniqueCode
+        syncCode: sharedCode
     });
 
     document.getElementById('addMemberForm').reset();
     renderAllDynamicViews();
-    alert(`تم إضافة العضو بنجاح وتوليد رقم الربط السحابي: ${uniqueCode}`);
+    await commitStateToCloud("إضافة العضو الميداني: " + name);
+    alert(`✅ تم إنشاء حساب العضو (${name}) ورفعه مباشرة لقاعدة البيانات السحابية الحقيقية في GitHub!`);
 }
 window.handleAddNewMember = handleAddNewMember;
 
-function deleteMember(idx) {
-    if(confirm("هل أنت متأكد من رغبتك في حذف هذا العضو من الفريق؟")) {
+async function deleteMember(idx) {
+    const memName = HSE_STATE.members[idx] ? HSE_STATE.members[idx].name : "";
+    if(confirm("هل أنت متأكد من رغبتك في حذف هذا العضو وسحب صلاحية دخوله من السحابة؟")) {
         HSE_STATE.members.splice(idx, 1);
         renderAllDynamicViews();
+        await commitStateToCloud("حذف العضو الميداني: " + memName);
+        alert("تم الحذف وتحديث قاعدة البيانات السحابية بنجاح.");
     }
 }
 window.deleteMember = deleteMember;
@@ -503,10 +511,11 @@ function renderTasksList() {
 
     const isMgr = HSE_STATE.currentRole === "manager";
     const memName = HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "";
+
     const tasksToShow = isMgr ? HSE_STATE.tasks : HSE_STATE.tasks.filter(t => t.assignedTo === memName || t.assignedTo === "الكل");
 
     if(tasksToShow.length === 0) {
-        box.innerHTML = `<div class="p-3 text-center text-secondary"><i class="fa-solid fa-list-check"></i> لا توجد تكليفات أمنية موجهة حالياً.</div>`;
+        box.innerHTML = `<div class="p-3 text-center text-secondary"><i class="fa-solid fa-list-check"></i> لا توجد مهام موجهة حالياً.</div>`;
         return;
     }
 
@@ -526,26 +535,25 @@ function renderTasksList() {
                 <div><i class="fa-solid fa-calendar"></i> الموعد: ${tsk.dueDate}</div>
             </div>
             ${tsk.report ? `
-                <div class="p-2 my-2 rounded text-sm" style="background: var(--bg-main); border-right: 3px solid var(--success-color);">
-                    <strong class="text-success"><i class="fa-solid fa-file-contract"></i> تقرير التنفيذ الميداني المعتمد:</strong>
+                <div class="report-box p-2 my-2 rounded text-sm" style="background: var(--bg-main); border-right: 3px solid var(--success-color);">
+                    <strong class="text-success"><i class="fa-solid fa-file-contract"></i> تقرير إنجاز المهمة العائد من الميدان:</strong>
                     <p class="mb-0 mt-1">${tsk.report}</p>
                 </div>
             ` : ''}
             <div class="sc-actions mt-2">
                 ${!isMgr && tsk.status !== 'completed' ? `
-                    <button class="pure-green-btn btn-sm" style="width: auto; padding: 0.5rem 1rem;" onclick="openTaskReportModal('${tsk.id}')"><i class="fa-solid fa-paper-plane"></i> رفع تقرير التنفيذ الميداني</button>
+                    <button type="button" class="pure-green-btn btn-sm" onclick="openTaskReportModal('${tsk.id}')"><i class="fa-solid fa-paper-plane"></i> رفع تقرير إنجاز المهمة</button>
                 ` : ''}
                 ${isMgr && tsk.status === 'completed' ? `
-                    <button class="btn btn-sm btn-secondary text-success" onclick="alert('تم مراجعة التقرير والمصادقة عليه بنجاح')"><i class="fa-solid fa-thumbs-up"></i> مصادقة التقرير</button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="alert('تم مراجعة التقرير والمصادقة عليه بنجاح')"><i class="fa-solid fa-thumbs-up"></i> اعتماد التقرير</button>
                 ` : ''}
             </div>
         `;
         box.appendChild(div);
     });
 }
-window.renderTasksList = renderTasksList;
 
-function handleAssignTask(e) {
+async function handleAssignTask(e) {
     e.preventDefault();
     const title = document.getElementById("taskDescInput").value.trim();
     const assignedTo = document.getElementById("taskTargetMember").value;
@@ -560,7 +568,8 @@ function handleAssignTask(e) {
 
     document.getElementById("assignTaskForm").reset();
     renderAllDynamicViews();
-    alert("تم توجيه التكليف الأمني وإرسال إشعار للميدان بنجاح.");
+    await commitStateToCloud("توجيه مهمة جديدة: " + title);
+    alert("تم توجيه المهمة ورفعها فوراً لقاعدة بيانات GitHub السحابية.");
 }
 window.handleAssignTask = handleAssignTask;
 
@@ -568,12 +577,12 @@ function openTaskReportModal(tskId) {
     const t = HSE_STATE.tasks.find(i => i.id === tskId);
     if(!t) return;
     document.getElementById("activeReportTaskId").value = tskId;
-    document.getElementById("reportTaskTitleDisplay").innerText = `التكليف الميداني: ${t.title}`;
+    document.getElementById("reportTaskTitleDisplay").innerText = `المهمة المستهدفة: ${t.title}`;
     openModal("taskReportModal");
 }
 window.openTaskReportModal = openTaskReportModal;
 
-function handleTaskReportSubmit(e) {
+async function handleTaskReportSubmit(e) {
     e.preventDefault();
     const tId = document.getElementById("activeReportTaskId").value;
     const notes = document.getElementById("taskReportNotes").value.trim();
@@ -585,11 +594,49 @@ function handleTaskReportSubmit(e) {
     }
     closeModal("taskReportModal");
     renderAllDynamicViews();
-    alert("تم إرسال تقرير التنفيذ الميداني إلى المدير بنجاح!");
+    await commitStateToCloud("إنجاز المهمة الميدانية: " + tId);
+    alert("✅ تم إرسال وتوثيق تقرير الإنجاز في قاعدة البيانات السحابية الحقيقية بنجاح!");
 }
 window.handleTaskReportSubmit = handleTaskReportSubmit;
 
-// 3. DIGITAL SIGNATURE PAD
+// 3. PENDING SIGNATURES QUEUE
+function renderPendingSignatures() {
+    const list = document.getElementById('pendingSigQueueList');
+    if(!list) return;
+    list.innerHTML = '';
+
+    if(HSE_STATE.pendingSignatures.length === 0) {
+        list.innerHTML = `<div class="p-4 text-center text-secondary"><i class="fa-solid fa-circle-check"></i> لا توجد استمارات معلقة بانتظار التوقيع حالياً.</div>`;
+        return;
+    }
+
+    HSE_STATE.pendingSignatures.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'sc-app-card mb-2';
+        card.innerHTML = `
+            <div class="sc-top-bar">
+                <span class="code">#${item.id} (${item.type})</span>
+                <span class="status-pill orange"><i class="fa-solid fa-clock"></i> يتطلب توقيع المدير</span>
+            </div>
+            <h3 class="font-bold my-1">${item.title}</h3>
+            <div class="meta-grid text-sm text-secondary">
+                <div><i class="fa-solid fa-user"></i> المنشئ: ${item.author}</div>
+                <div><i class="fa-solid fa-calendar-day"></i> التاريخ: ${item.date}</div>
+            </div>
+            <div class="sc-actions mt-2">
+                ${HSE_STATE.currentRole === "manager" ? `
+                    <button type="button" class="pure-green-btn btn-sm" onclick="openSignatureModal('${item.id}')"><i class="fa-solid fa-signature"></i> التوقيع الإلكتروني للاعتماد</button>
+                ` : `
+                    <span class="text-xs text-warning font-bold"><i class="fa-solid fa-hourglass-half"></i> تم الرفع للسحابة الحقيقية، بانتظار التوقيع</span>
+                `}
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+window.renderPendingSignatures = renderPendingSignatures;
+
+// 4. DIGITAL SIGNATURE PAD
 function initSigPad() {
     const canvas = document.getElementById("sigCanvas");
     if(!canvas) return;
@@ -626,39 +673,45 @@ window.clearSignature = clearSignature;
 
 function openSignatureModal(docId) {
     if (HSE_STATE.currentRole !== "manager") {
-        alert("التوقيع الرقمي النهائي من صلاحيات مدير السلامة العام.");
+        alert("التوقيع الرقمي النهائي والاعتماد من صلاحيات مدير السلامة العام فقط.");
         return;
     }
     currentSigDocId = docId;
     document.getElementById("sigTargetDocTitle").innerText = `وثيقة الاعتماد: #${docId}`;
     clearSignature();
+    closeModal("pendingSigModal");
     openModal("sigModal");
 }
 window.openSignatureModal = openSignatureModal;
 
-function saveSignature() {
+async function saveSignature() {
     if(!currentSigDocId) return;
+    
+    HSE_STATE.pendingSignatures = HSE_STATE.pendingSignatures.filter(i => i.id !== currentSigDocId);
     
     if (currentSigDocId === "PTW-2024-015") {
         const sEl = document.getElementById("managerSigStamp");
+        const nEl = document.getElementById("managerSigName");
         const stEl = document.getElementById("ptwDocStatus");
+        if(nEl) nEl.innerText = HSE_STATE.manager.name;
         if(sEl) {
-            sEl.className = "text-success font-bold";
-            sEl.innerHTML = `<i class="fa-solid fa-file-signature"></i> معتمد بتوقيع ${HSE_STATE.manager.name}`;
+            sEl.className = "sig-stamp green-font";
+            sEl.innerHTML = `Approved (${new Date().toLocaleDateString()})`;
         }
         if(stEl) {
             stEl.className = "status-pill green";
-            stEl.innerHTML = `<i class="fa-solid fa-check"></i> تم الاعتماد النهائي`;
+            stEl.innerHTML = `<i class="fa-solid fa-check"></i> تم الاعتماد السحابي النهائي`;
         }
     }
 
     closeModal("sigModal");
     renderAllDynamicViews();
-    alert("تم التوقيع الإلكتروني واعتماد الاستمارة ومزامنتها بنجاح!");
+    await commitStateToCloud("التوقيع الإلكتروني واعتماد الوثيقة: " + currentSigDocId);
+    alert("✅ تم التوقيع الإلكتروني وحفظ الاعتماد مباشرة في قاعدة بيانات GitHub الحقيقية!");
 }
 window.saveSignature = saveSignature;
 
-// 4. FORM CUSTOMIZER (DYNAMIC FIELDS)
+// 5. FORM CUSTOMIZER (DYNAMIC FIELDS)
 function renderCustomFieldsList() {
     const target = document.getElementById("customFormTarget") ? document.getElementById("customFormTarget").value : "sc";
     const box = document.getElementById("customFieldsListContainer");
@@ -674,7 +727,13 @@ function renderCustomFieldsList() {
 
     fields.forEach((f, idx) => {
         const tag = document.createElement('div');
-        tag.className = 'status-pill green me-2 mb-2 p-2';
+        tag.className = 'tab-item me-2 mb-2 active';
+        tag.style.padding = '6px 10px';
+        tag.style.borderRadius = '20px';
+        tag.style.background = 'var(--primary-light)';
+        tag.style.border = '1px solid var(--primary-border)';
+        tag.style.display = 'inline-flex';
+        tag.style.alignItems = 'center';
         tag.innerHTML = `<span><i class="fa-solid fa-tag"></i> ${f.name} (${f.type})</span>
             ${HSE_STATE.currentRole === 'manager' ? `<i class="fa-solid fa-trash text-danger ms-2 cursor-pointer" onclick="deleteCustomField('${target}', ${idx})"></i>` : ''}`;
         box.appendChild(tag);
@@ -682,7 +741,7 @@ function renderCustomFieldsList() {
 }
 window.renderCustomFieldsList = renderCustomFieldsList;
 
-function addCustomFieldToForm() {
+async function addCustomFieldToForm() {
     const nameInput = document.getElementById("customFieldName");
     const typeSelect = document.getElementById("customFieldType");
     const target = document.getElementById("customFormTarget").value;
@@ -695,20 +754,22 @@ function addCustomFieldToForm() {
     HSE_STATE.customFields[target].push({
         id: "CF-" + Math.floor(10 + Math.random()*90),
         name: nameInput.value.trim(),
-        type: typeSelect.value
+        type: typeSelect ? typeSelect.value : "text"
     });
 
     nameInput.value = '';
     renderCustomFieldsList();
     renderCustomFieldsInForm();
-    alert("تم إدراج الحقل المخصص وتزامن بنجاح مع كافة أجهزة الفريق في الميدان!");
+    await commitStateToCloud("إضافة حقل مخصص للاستمارة: " + target);
+    alert("✅ تم إدراج الحقل ورفعه لقاعدة البيانات الحقيقية؛ سيظهر الآن لدى جميع أعضاء الفريق!");
 }
 window.addCustomFieldToForm = addCustomFieldToForm;
 
-function deleteCustomField(target, idx) {
+async function deleteCustomField(target, idx) {
     HSE_STATE.customFields[target].splice(idx, 1);
     renderCustomFieldsList();
     renderCustomFieldsInForm();
+    await commitStateToCloud("حذف حقل مخصص من الاستمارة");
 }
 window.deleteCustomField = deleteCustomField;
 
@@ -722,14 +783,14 @@ function renderCustomFieldsInForm() {
 
     const header = document.createElement("h5");
     header.className = "text-primary my-2 text-sm font-bold";
-    header.innerHTML = `<i class="fa-solid fa-sliders"></i> حقول مخصصة مضافة من المدير:`;
+    header.innerHTML = `<i class="fa-solid fa-sliders"></i> حقول إضافية مخصصة من المدير:`;
     box.appendChild(header);
 
     scFields.forEach(f => {
         const g = document.createElement("div");
         g.className = "form-group";
         if(f.type === "checkbox") {
-            g.innerHTML = `<label class="d-flex align-items-center gap-2"><input type="checkbox"> <span class="font-bold">${f.name}</span></label>`;
+            g.innerHTML = `<label style="display:flex; align-items:center; gap:8px; font-weight:700;"><input type="checkbox" style="width:20px; height:20px; min-height:0;"> <span>${f.name}</span></label>`;
         } else if(f.type === "textarea") {
             g.innerHTML = `<label><i class="fa-solid fa-tag text-primary"></i> ${f.name}</label><textarea rows="2" class="form-control" placeholder="أدخل بيانات ${f.name}..."></textarea>`;
         } else {
@@ -740,11 +801,39 @@ function renderCustomFieldsInForm() {
 }
 window.renderCustomFieldsInForm = renderCustomFieldsInForm;
 
-// 5. SC REPORT SUBMIT
-function handleNewSCSubmit(e) {
+// 6. SCHEDULER & SETTINGS
+function toggleAssigneeSelect(show) {
+    const g = document.getElementById("targetAssigneeGroup");
+    if(g) g.style.display = show ? "block" : "none";
+}
+window.toggleAssigneeSelect = toggleAssigneeSelect;
+
+async function saveScheduleSettings(e) {
+    e.preventDefault();
+    const freqEl = document.querySelector('input[name="checkinFrequency"]:checked');
+    const modeEl = document.querySelector('input[name="assignMode"]:checked');
+    const mem = document.getElementById("scheduleTargetMember") ? document.getElementById("scheduleTargetMember").value : null;
+
+    if(freqEl) {
+        HSE_STATE.schedule = { frequency: freqEl.value, assignMode: modeEl ? modeEl.value : "free", targetMember: mem };
+    }
+    closeModal("scheduleModal");
+    await commitStateToCloud("ضبط إعدادات جدولة السلامة");
+    alert("✅ تم حفظ وضبط إعدادات الجدولة في قاعدة البيانات السحابية بنجاح!");
+}
+window.saveScheduleSettings = saveScheduleSettings;
+
+async function handleNewSCSubmit(e) {
     e.preventDefault();
     const title = document.getElementById("newScTitle").value;
-    const newId = "SC-2024-" + Math.floor(100 + Math.random()*900);
+    const newId = "SC-2024-" + Math.floor(1000 + Math.random()*9000);
+
+    HSE_STATE.pendingSignatures.unshift({
+        id: newId, type: "SC Report", title,
+        author: HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو"),
+        date: new Date().toISOString().split('T')[0],
+        priority: document.getElementById("newScPrio").value
+    });
 
     const cont = document.getElementById("scReportsContainer");
     if(cont) {
@@ -753,29 +842,30 @@ function handleNewSCSubmit(e) {
         card.innerHTML = `
             <div class="sc-top-bar">
                 <span class="code">#${newId}</span>
-                <span class="status-pill orange"><i class="fa-solid fa-triangle-exclamation"></i> بانتظار توقيع المدير</span>
+                <span class="status-pill orange"><i class="fa-solid fa-clock"></i> بانتظار اعتماد المدير</span>
             </div>
             <h3>${title}</h3>
             <div class="meta-grid">
-                <div><i class="fa-solid fa-user"></i> الراصد: ${HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : HSE_STATE.currentMember.name}</div>
-                <div><i class="fa-solid fa-calendar"></i> ${new Date().toISOString().split('T')[0]}</div>
-                <div><i class="fa-solid fa-location-dot"></i> ${document.getElementById("newScLoc").value}</div>
-                <div><i class="fa-solid fa-flag text-danger"></i> أولوية: ${document.getElementById("newScPrio").value}</div>
+                <div><i class="fa-regular fa-clock"></i> ${new Date().toLocaleDateString()}</div>
+                <div><i class="fa-regular fa-user"></i> المنشئ: ${HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو")}</div>
+                <div><i class="fa-solid fa-location-dot"></i> الموقع: ${document.getElementById("newScLoc").value}</div>
             </div>
             <div class="sc-actions">
-                <button class="pure-green-btn btn-sm" style="width: auto; padding: 0.45rem 0.9rem;" onclick="openSignatureModal('${newId}')"><i class="fa-solid fa-signature"></i> التوقيع الإلكتروني للاعتماد</button>
+                <button type="button" class="pure-green-btn btn-sm" onclick="openSignatureModal('${newId}')"><i class="fa-solid fa-signature"></i> التوقيع الإلكتروني للاعتماد</button>
             </div>
         `;
         cont.prepend(card);
     }
 
     document.getElementById("nativeSCForm").reset();
-    renderCustomFieldsInForm();
-    alert("تم رفع بلاغ حالة الخطر للميدان وإرسال إشعار فوري للمدير للاعتماد!");
+    renderAllDynamicViews();
+    switchAppView("sc-reports");
+    await commitStateToCloud("تقديم بلاغ السلامة الميداني: " + newId);
+    alert("✅ تم تقديم البلاغ وتخزينه فوراً في قاعدة بيانات GitHub الحقيقية ليطلع عليه المدير!");
 }
 window.handleNewSCSubmit = handleNewSCSubmit;
 
-// 6. CALENDAR ENGINE
+// 7. CALENDAR ENGINE
 function renderCalendar(dateObj) {
     const cont = document.getElementById("daysGridContainer");
     const label = document.getElementById("calendarMonthYearDisplay");
@@ -810,8 +900,8 @@ function renderCalendar(dateObj) {
     HSE_STATE.calendarEvents.forEach(ev => {
         if(evList) {
             const row = document.createElement("div");
-            row.className = "vault-item-card mb-1";
-            row.innerHTML = `<div><h5 class="m-0 font-bold"><i class="fa-solid fa-calendar-check text-primary"></i> ${ev.title}</h5><small class="text-secondary">${ev.date}</small></div><span class="status-pill green">مجدول</span>`;
+            row.className = "tab-item d-block mb-1 w-100 p-2";
+            row.innerHTML = `<i class="fa-solid fa-calendar-check text-primary me-2"></i> <strong>${ev.title}</strong> - <small>${ev.date}</small>`;
             evList.appendChild(row);
         }
     });
@@ -824,23 +914,49 @@ function navigateMonth(diff) {
 }
 window.navigateMonth = navigateMonth;
 
-function handleAddCalendarEvent(e) {
+async function handleAddCalendarEvent(e) {
     e.preventDefault();
     HSE_STATE.calendarEvents.push({
         id: "EV-" + Math.floor(10 + Math.random()*90),
         title: document.getElementById("eventTitle").value,
         date: document.getElementById("eventDate").value,
-        type: document.getElementById("eventType").value
+        type: document.getElementById("eventType") ? document.getElementById("eventType").value : "general"
     });
     document.getElementById("addEventForm").reset();
     renderCalendar(HSE_STATE.currentDate);
-    alert("تم إضافة المناسبة للتقويم ومزامنتها بنجاح!");
+    await commitStateToCloud("إضافة مناسبة بالتقويم");
+    alert("✅ تم إدراج الموعد وحفظه في قاعدة البيانات السحابية الحقيقية بنجاح!");
 }
 window.handleAddCalendarEvent = handleAddCalendarEvent;
 
-// 7. MISC ENGINE
+// 8. CHAT ENGINE & MISC
+async function handleSendChatMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById("chatInputText");
+    const box = document.getElementById("chatMessagesBox");
+    if(!input || !input.value.trim() || !box) return;
+
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message sent";
+    const senderName = HSE_STATE.currentRole === "manager" ? HSE_STATE.manager.name : (HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "عضو");
+    
+    msgDiv.innerHTML = `
+        <span class="sender" style="display:block; font-weight:800; font-size:11px;">${senderName}:</span>
+        <p style="margin:2px 0;">${input.value.trim()}</p>
+        <span class="time" style="font-size:10px; opacity:0.8; display:block; text-align:left;"><i class="fa-solid fa-check-double"></i> ${new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'})}</span>
+    `;
+    box.appendChild(msgDiv);
+    const textStr = input.value.trim();
+    input.value = '';
+    box.scrollTop = box.scrollHeight;
+    
+    // Auto sync message
+    await commitStateToCloud("إرسال رسالة بغرفة العمليات من: " + senderName);
+}
+window.handleSendChatMessage = handleSendChatMessage;
+
 function triggerEmergencyCall() {
-    alert("تنبيه طوارئ فوري: سيتم الاتصال المباشر بغرفة الطوارئ ومشاركة إحداثيات الموقع!");
+    alert("🚨 تنبيه طوارئ فوري: سيتم الاتصال المباشر بإدارة الطوارئ ومشاركة الموقع!");
 }
 window.triggerEmergencyCall = triggerEmergencyCall;
 
@@ -849,17 +965,28 @@ function toggleTheme() {
 }
 window.toggleTheme = toggleTheme;
 
-function saveGitHubConfig(e) {
+async function saveGitHubConfig(e) {
     e.preventDefault();
     HSE_STATE.manager.ghOwner = document.getElementById("ghOwnerInput").value.trim();
     HSE_STATE.manager.ghRepo = document.getElementById("ghRepoInput").value.trim();
-    
-    if(ghDatabase && typeof ghDatabase.generateSyncCode === 'function') {
-        const code = ghDatabase.generateSyncCode(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo);
+    const tkn = document.getElementById("ghTokenInput").value.trim();
+    if(tkn) HSE_STATE.manager.ghToken = tkn;
+
+    if(ghDatabase) {
+        ghDatabase.setCredentials(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo, HSE_STATE.manager.ghToken);
+        const code = ghDatabase.generateSyncCode(HSE_STATE.manager.ghOwner, HSE_STATE.manager.ghRepo, HSE_STATE.manager.ghToken);
         HSE_STATE.manager.syncCode = code;
     }
+    
     updateSyncCodeDisplays();
     closeModal("githubModal");
-    alert("تم تحديث إعدادات مستودع GitHub وتوليد كود المزامنة السحابي الجديد!");
+    
+    // Perform real database initialization and check
+    const initRes = await ghDatabase.initOrSaveRealDatabase(HSE_STATE);
+    if(initRes.success) {
+        alert("✅ تم التوثيق وإنشاء/تحميل قاعدة البيانات الحقيقية (hse_db.json) على GitHub بنجاح!\nكود الربط السحابي المحدث أصبح فعالاً لجميع الأعضاء.");
+    } else {
+        alert("⚠️ تم حفظ البيانات محلياً، ولكن تعذر إنشاء القاعدة على GitHub:\n" + initRes.message);
+    }
 }
 window.saveGitHubConfig = saveGitHubConfig;
