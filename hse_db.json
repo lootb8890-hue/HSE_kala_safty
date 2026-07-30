@@ -33,6 +33,14 @@
   "pendingSignatures": [],
   "tasks": [
     {
+      "id": "TSK-184",
+      "title": ";ouiuyhgfghjgkhjgcjkhgb",
+      "assignedTo": "الكل (جميع الأعضاء)",
+      "dueDate": "2026-07-30",
+      "status": "pending",
+      "report": null
+    },
+    {
       "id": "TSK-606",
       "title": "1234566",
       "assignedTo": "سامي الجهني",
@@ -197,13 +205,7 @@
     "assignMode": "free",
     "targetMember": null
   },
-  "currentRole": "member",
-  "currentMember": {
-    "id": "M1",
-    "name": "أحمد علي",
-    "user": "ahmed_a",
-    "phone": "0501112233",
-    "pass": "123456"
-  },
+  "currentRole": "manager",
+  "currentMember": null,
   "currentDate": "2026-07-30T18:34:58.360Z"
 }
