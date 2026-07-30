@@ -115,9 +115,14 @@ function updateSyncCodeDisplays() {
 
 async function commitStateToCloud(actionName = "تحديث بيانات النظام") {
     localStorage.setItem("HSE_GITHUB_DB_BACKUP", JSON.stringify(HSE_STATE));
-    if (ghDatabase && ghDatabase.owner && ghDatabase.repo && ghDatabase.token) {
-        await ghDatabase.saveDatabase(HSE_STATE, actionName);
+    if (!ghDatabase || !ghDatabase.owner || !ghDatabase.repo) {
+        return { success: false, message: "لم يتم تعيين الحساب والمستودع في إعدادات GitHub." };
     }
+    if (!ghDatabase.token) {
+        return { success: false, message: "رمز التوكن (PAT Token) مفقود في إعدادات المدير، لذلك تعذر الرفع السحابي لـ GitHub." };
+    }
+    const res = await ghDatabase.saveDatabase(HSE_STATE, actionName);
+    return res;
 }
 
 function initAppUI() {
@@ -172,6 +177,12 @@ function showAuthSection(section) {
     } else if(section === 'manager') {
         const el = document.getElementById('managerAuthSection');
         if(el) el.classList.add('active');
+        const tokenEl = document.getElementById("mgrGhToken");
+        if(tokenEl && !tokenEl.value) tokenEl.value = localStorage.getItem("github_token") || ghDatabase.token || "";
+        const ownerEl = document.getElementById("mgrGhOwner");
+        if(ownerEl && !ownerEl.value) ownerEl.value = localStorage.getItem("github_owner") || ghDatabase.owner || "lootb8890-hue";
+        const repoEl = document.getElementById("mgrGhRepo");
+        if(repoEl && !repoEl.value) repoEl.value = localStorage.getItem("github_repo") || ghDatabase.repo || "HSE_kala_safty";
     } else if(section === 'member') {
         const el = document.getElementById('memberAuthSection');
         if(el) el.classList.add('active');
@@ -286,10 +297,10 @@ async function handleMemberLogin(e) {
     HSE_STATE = rehydrateLocalCredentials(verifyRes.data);
 
     // 4. Strict Credential Verification in Real Database
-    const member = HSE_STATE.members.find(m => (m.user === user || m.phone === user) && m.pass === pass);
+    const member = HSE_STATE.members.find(m => (m.user === user || m.phone === user || m.name === user) && m.pass === pass);
     if (!member) {
         if(btn) btn.innerHTML = origText;
-        alert("❌ تم رفض الدخول: بياناتك (اسم المستخدم أو كلمة المرور) غير مسجلة في قاعدة بيانات المدير السحابية الحقيقية.\n\nلا يُسمح بالدخول التلقائي! يرجى التنسيق مع مدير السلامة العام لإنشاء حسابك وإدراج اسمك أولاً عبر لوحته الإدارية.");
+        alert("❌ تم رفض الدخول السحابي!\n\nتم الاتصال وسحب قاعدة بيانات GitHub الحقيقية من السحابة، ولكن لم يتم العثور على حسابك (أو أن كلمة المرور غير مطابقة)!\n\n⚠️ السبب الأرجح:\nحينما قام المدير بإنشاء حسابك، كان رمز التوكن (PAT Token) لديه مفقوداً أو غير فعال، فتم حفظ حسابك على هاتف المدير محلياً فقط ولم يرتفع لمخدمات GitHub السحابية!\n\n💡 الحل: يطلب المدير الدخول على حسابه وإضافة رمز الـ Token الفعال في إعدادات GitHub باللوحة الجانبية ثم الموافقة ليتم رفع الحساب مباشرة!");
         return false;
     }
 
@@ -499,8 +510,12 @@ async function handleAddNewMember(e) {
 
     document.getElementById('addMemberForm').reset();
     renderAllDynamicViews();
-    await commitStateToCloud("إضافة العضو الميداني: " + name);
-    alert(`✅ تم إنشاء حساب العضو (${name}) ورفعه مباشرة لقاعدة البيانات السحابية الحقيقية في GitHub!`);
+    const cloudRes = await commitStateToCloud("إضافة العضو الميداني: " + name);
+    if (cloudRes && cloudRes.success) {
+        alert(`✅ تم إنشاء حساب العضو (${name}) ورفعه مباشرة لقاعدة البيانات السحابية الحقيقية في GitHub بنجاح!\n\nيمكنه الآن الدخول من أي هاتف باستخدام:\nالاسم/الهاتف: ${user || phone}\nكلمة المرور: ${pass}`);
+    } else {
+        alert(`⚠️ تنبيه إداري حاسم:\nتم إنشاء العضو (${name}) على جهازك الحالي فقط، *ولكن لم ينجح الرفع إلى GitHub السحابي* بسبب:\n(${cloudRes ? cloudRes.message : "تعذر الاتصال"})\n\n❗ لن يتمكن العضو من الدخول من هاتفه حتى تضع التوكن (PAT Token) الصحيح من خلال القائمة الجانبية -> إعدادات GitHub Sync ثم تحفظ الأزرار هناك ليتم الرفع الفعلي!`);
+    }
 }
 window.handleAddNewMember = handleAddNewMember;
 
@@ -509,8 +524,12 @@ async function deleteMember(idx) {
     if(confirm("هل أنت متأكد من رغبتك في حذف هذا العضو وسحب صلاحية دخوله من السحابة؟")) {
         HSE_STATE.members.splice(idx, 1);
         renderAllDynamicViews();
-        await commitStateToCloud("حذف العضو الميداني: " + memName);
-        alert("تم الحذف وتحديث قاعدة البيانات السحابية بنجاح.");
+        const cloudRes = await commitStateToCloud("حذف العضو الميداني: " + memName);
+        if(cloudRes && cloudRes.success) {
+            alert("تم الحذف وتحديث قاعدة البيانات السحابية الحقيقية بنجاح.");
+        } else {
+            alert("تم الحذف محلياً فقط. تعذر الرفع للسحابة لعدم توفر التوكن الفعال.");
+        }
     }
 }
 window.deleteMember = deleteMember;
