@@ -402,20 +402,35 @@
             </section>
 
             <!-- VIEW 5: TEAM CHAT & EMERGENCY NOTIFICATIONS -->
-            <section id="view-team-chat" class="app-screen-view">
-                <div class="section-top-bar" style="flex-wrap: wrap; gap: 8px;">
-                    <h4><i class="fa-solid fa-comments text-purple"></i> غرفة العمليات والتواصل الفوري</h4>
-                    <button type="button" class="btn btn-sm btn-secondary" onclick="fetchLatestCloudData(true)" style="padding: 4px 10px; border-radius: 20px; font-size: 11px;">
-                        <i class="fa-solid fa-arrows-rotate text-success"></i> سحب أحدث المراسلات من السحابة
+            <section id="view-team-chat" class="app-screen-view" style="padding-bottom: 75px;">
+                <div class="section-top-bar" style="justify-content: space-between; margin-bottom: 8px;">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fetchLatestCloudData(true)" style="padding: 4px 12px; border-radius: 20px; font-size: 11px;">
+                        <i class="fa-solid fa-arrows-rotate text-success"></i> تحديث المراسلات
                     </button>
-                    <span class="status-pill green" style="margin-left: auto;">متصل بالرمز السحابي</span>
+                    <span class="status-pill green">متصل بالربط السحابي</span>
                 </div>
 
                 <div class="chat-viewport-box">
                     <div class="chat-messages" id="chatMessagesBox"></div>
-                    <form class="chat-input-bar" onsubmit="handleSendChatMessage(event); return false;">
-                        <input type="text" id="chatInputText" class="form-control" placeholder="اكتب ملاحظتك أو تنبيهك الميداني هنا..." required style="min-height:38px;">
-                        <button type="submit" class="btn btn-primary btn-sm" style="min-height:38px;"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+
+                <!-- FIXED MESSAGE INPUT BAR AT BOTTOM (ABOVE NAV) -->
+                <div class="fixed-chat-wrapper">
+                    <div id="chatAttachmentPreview" style="display:none; align-items:center; justify-content:space-between; background:var(--primary-light); padding:5px 12px; border-top-left-radius:12px; border-top-right-radius:12px; font-size:11px; font-weight:800; color:#113615; border:1px solid var(--border-color); border-bottom:none; margin-bottom:4px;">
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%;"><i class="fa-solid fa-paperclip text-success"></i> تم إرفاق: <span id="chatAttachmentName"></span></span>
+                        <button type="button" onclick="removeChatAttachment()" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size:14px;" title="حذف المرفق"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                    <form class="chat-input-bar fixed-mode" onsubmit="handleSendChatMessage(event); return false;">
+                        <label for="chatFileInput" class="btn btn-secondary" style="margin:0; padding:0; width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; flex-shrink:0;" title="إرفاق صورة أو ملف">
+                            <i class="fa-solid fa-paperclip text-primary" style="font-size:17px;"></i>
+                        </label>
+                        <input type="file" id="chatFileInput" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" style="display:none;" onchange="handleChatAttachmentChange(event)">
+                        
+                        <input type="text" id="chatInputText" class="form-control" placeholder="اكتب رسالتك، أو أرفق صورة وملف..." style="height:42px; border-radius:21px; padding:0 16px; font-size:13px; flex:1;">
+                        
+                        <button type="submit" class="btn btn-primary" style="margin:0; padding:0; width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;" title="إرسال">
+                            <i class="fa-solid fa-paper-plane" style="font-size:16px;"></i>
+                        </button>
                     </form>
                 </div>
             </section>

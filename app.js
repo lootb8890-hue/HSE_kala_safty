@@ -1024,13 +1024,88 @@ async function handleAddCalendarEvent(e) {
 window.handleAddCalendarEvent = handleAddCalendarEvent;
 
 // 8. CHAT ENGINE & MISC
+let currentChatAttachment = null;
+
+function handleChatAttachmentChange(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    
+    // Check file size (max 2.5 MB)
+    if (file.size > 2.5 * 1024 * 1024) {
+        alert("❌ عذراً، حجم الملف أكبر من 2.5 ميجابايت! يرجى إرفاق صور أو ملفات أخف لضمان سرعة أداء المراسلات السحابية.");
+        removeChatAttachment();
+        return;
+    }
+
+    const previewEl = document.getElementById("chatAttachmentPreview");
+    const nameEl = document.getElementById("chatAttachmentName");
+
+    if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 800;
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+                currentChatAttachment = {
+                    name: file.name,
+                    type: 'image/jpeg',
+                    dataUrl: compressedDataUrl
+                };
+                if (nameEl) nameEl.textContent = file.name;
+                if (previewEl) previewEl.style.display = 'flex';
+            };
+            img.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            currentChatAttachment = {
+                name: file.name,
+                type: file.type || 'application/octet-stream',
+                dataUrl: evt.target.result
+            };
+            if (nameEl) nameEl.textContent = file.name;
+            if (previewEl) previewEl.style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+window.handleChatAttachmentChange = handleChatAttachmentChange;
+
+function removeChatAttachment() {
+    currentChatAttachment = null;
+    const fileEl = document.getElementById("chatFileInput");
+    if (fileEl) fileEl.value = "";
+    const previewEl = document.getElementById("chatAttachmentPreview");
+    if (previewEl) previewEl.style.display = 'none';
+}
+window.removeChatAttachment = removeChatAttachment;
+
 function renderChatMessages() {
     const box = document.getElementById("chatMessagesBox");
     if (!box) return;
     box.innerHTML = '';
     const messages = HSE_STATE.chatMessages || [];
     if (messages.length === 0) {
-        box.innerHTML = `<div style="text-align:center; color:var(--text-light); font-size:12px; padding:20px;">لا توجد رسائل مسجلة بغرفة العمليات حتى الآن.</div>`;
+        box.innerHTML = `<div style="text-align:center; color:var(--text-light); font-size:12px; padding:20px;">لا توجد رسائل مسجلة حتى الآن. ابدأ المحادثة أو أرفق التقرير الميداني.</div>`;
         return;
     }
     const isManager = HSE_STATE.currentRole === "manager";
@@ -1044,9 +1119,33 @@ function renderChatMessages() {
                      
         msgDiv.className = `message ${isMe ? 'sent' : 'received'}`;
         
+        let attachmentHtml = '';
+        if (msg.attachment && msg.attachment.dataUrl) {
+            if (msg.attachment.type && msg.attachment.type.startsWith('image/')) {
+                attachmentHtml = `
+                    <div style="margin: 6px 0;">
+                        <a href="${msg.attachment.dataUrl}" target="_blank" download="${msg.attachment.name || 'image.jpg'}" title="انقر للفتح أو التحميل">
+                            <img src="${msg.attachment.dataUrl}" alt="مرفق صورة" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(0,0,0,0.15); max-height: 240px; object-fit: contain; display: block; background:rgba(0,0,0,0.05);">
+                        </a>
+                    </div>
+                `;
+            } else {
+                attachmentHtml = `
+                    <div style="margin: 6px 0;">
+                        <a href="${msg.attachment.dataUrl}" download="${msg.attachment.name || 'document'}" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.06); padding: 8px 12px; border-radius: 8px; text-decoration: none; color: inherit; border: 1px solid rgba(0,0,0,0.12); font-size: 12px; font-weight: 700;" title="تحميل الملف">
+                            <i class="fa-solid fa-file-arrow-down text-primary" style="font-size: 18px;"></i>
+                            <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${msg.attachment.name || 'ملف مرفق'}</span>
+                            <small style="opacity: 0.85; font-weight: 800; text-decoration: underline;">تحميل</small>
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
         msgDiv.innerHTML = `
             <strong style="color:${isMe ? '#113615' : 'var(--primary-color)'}; display:block; font-size:11px; font-weight:800; margin-bottom:2px;">${msg.sender} (${msg.role === 'manager' ? 'مدير السلامة' : 'عضو ميداني'}):</strong>
-            <span style="display:block; margin:3px 0; font-size:13px;">${msg.text}</span>
+            ${msg.text ? `<span style="display:block; margin:3px 0; font-size:13px;">${msg.text}</span>` : ''}
+            ${attachmentHtml}
             <span style="font-size:10px; opacity:0.75; display:block; text-align:${isMe ? 'right' : 'left'}; margin-top:3px;"><i class="fa-solid fa-check-double text-success"></i> ${msg.time}</span>
         `;
         box.appendChild(msgDiv);
@@ -1059,9 +1158,11 @@ async function handleSendChatMessage(e) {
     e.preventDefault();
     const input = document.getElementById("chatInputText");
     const box = document.getElementById("chatMessagesBox");
-    if(!input || !input.value.trim() || !box) return;
+    if(!input || !box) return;
 
     const textStr = input.value.trim();
+    if (!textStr && !currentChatAttachment) return;
+
     input.value = '';
 
     if (!HSE_STATE.chatMessages) HSE_STATE.chatMessages = [];
@@ -1072,11 +1173,14 @@ async function handleSendChatMessage(e) {
     const newMsg = {
         id: "MSG-" + Date.now(),
         sender: senderName,
-        text: textStr,
+        text: textStr || (currentChatAttachment ? (currentChatAttachment.type.startsWith('image/') ? '📷 [صورة مرفقة]' : '📎 [ملف مرفق]') : ''),
         time: new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'}),
-        role: HSE_STATE.currentRole
+        role: HSE_STATE.currentRole,
+        attachment: currentChatAttachment ? JSON.parse(JSON.stringify(currentChatAttachment)) : null
     };
     HSE_STATE.chatMessages.push(newMsg);
+    
+    removeChatAttachment();
 
     renderChatMessages();
     
