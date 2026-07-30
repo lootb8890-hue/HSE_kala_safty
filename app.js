@@ -82,17 +82,50 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderAllDynamicViews();
     initSigPad();
     
-    // Check if there's an existing cloud connection to restore
+    // 1. Check for saved login session so user doesn't get logged out on page refresh!
+    const savedSessionStr = localStorage.getItem('HSE_LOGGED_IN_SESSION');
+    let hasSession = false;
+    if (savedSessionStr) {
+        try {
+            const session = JSON.parse(savedSessionStr);
+            if (session && session.role) {
+                hasSession = true;
+                HSE_STATE.currentRole = session.role;
+                if (session.role === 'member' && session.member) {
+                    HSE_STATE.currentMember = session.member;
+                    if (session.syncCode && ghDatabase) {
+                        ghDatabase.applySyncCode(session.syncCode);
+                    }
+                } else {
+                    HSE_STATE.currentMember = null;
+                }
+                // Instantly hide login portal and open home screen
+                closeLoginPortal();
+                updateSyncCodeDisplays();
+                updateRoleHeadersAndUI();
+                switchAppView('home');
+            }
+        } catch(e) { console.error("Session restore error:", e); }
+    }
+
+    // 2. Check if there's an existing cloud connection to sync latest data
     if (ghDatabase && ghDatabase.owner && ghDatabase.repo) {
         const res = await ghDatabase.verifyAndFetchRealCloudDatabase();
         if (res.success && res.data) {
             HSE_STATE = rehydrateLocalCredentials(res.data);
+            if (hasSession && HSE_STATE.currentRole === 'member' && HSE_STATE.currentMember) {
+                const refreshedMbr = HSE_STATE.members.find(m => m.id === HSE_STATE.currentMember.id || m.user === HSE_STATE.currentMember.user);
+                if (refreshedMbr) HSE_STATE.currentMember = refreshedMbr;
+            }
             renderAllDynamicViews();
+            updateRoleHeadersAndUI();
         }
     }
 
-    // Default open on login selection screen
-    showAuthSection('initial');
+    // Default open on login selection screen if NO session existed
+    if (!hasSession) {
+        showAuthSection('initial');
+    }
     startLiveChatSyncEngine();
 });
 
@@ -268,6 +301,7 @@ async function handleManagerSetup(e) {
     }
 
     if (btn) btn.innerHTML = origBtnText;
+    localStorage.setItem('HSE_LOGGED_IN_SESSION', JSON.stringify({ role: 'manager', timestamp: Date.now() }));
     closeLoginPortal();
     updateSyncCodeDisplays();
     updateRoleHeadersAndUI();
@@ -331,6 +365,8 @@ async function handleMemberLogin(e) {
     HSE_STATE.currentRole = "member";
     HSE_STATE.currentMember = member;
     
+    localStorage.setItem('HSE_LOGGED_IN_SESSION', JSON.stringify({ role: 'member', member: member, syncCode: code, timestamp: Date.now() }));
+
     closeLoginPortal();
     updateRoleHeadersAndUI();
     switchAppView('home');
@@ -346,6 +382,7 @@ function closeLoginPortal() {
 window.closeLoginPortal = closeLoginPortal;
 
 function switchRolePortal() {
+    localStorage.removeItem('HSE_LOGGED_IN_SESSION');
     const portal = document.getElementById("loginPortal");
     if(portal) {
         portal.classList.remove("hidden");
