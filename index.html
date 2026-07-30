@@ -572,14 +572,14 @@
     <div class="modal-overlay" id="tasksModal" onclick="closeModalOnOverlay(event, 'tasksModal')">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-list-check text-info"></i> توجيه المهام ومتابعة تقارير الميدان</h3>
+                <h3><i class="fa-solid fa-list-check text-info"></i> توجيه المهام ومتابعة إنجازات الميدان</h3>
             </div>
             <div class="modal-body">
-                <form id="assignTaskForm" onsubmit="handleAssignTask(event); return false;" style="background:var(--bg-main); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:14px;">
-                    <span style="font-size:12px; font-weight:800; color:var(--primary-color); display:block; margin-bottom:8px;"><i class="fa-solid fa-share-from-square"></i> إسناد مهمة جديدة لفريق السلامة:</span>
+                <form id="assignTaskForm" onsubmit="handleAssignTask(event); return false;" style="background:var(--bg-main); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:14px; display:none;">
+                    <span style="font-size:12px; font-weight:800; color:var(--primary-color); display:block; margin-bottom:8px;"><i class="fa-solid fa-share-from-square"></i> إسناد وتوجيه مهمة جديدة لفريق السلامة (خاص بالمدير):</span>
                     <div class="form-group mb-2">
-                        <label>تفاصيل المهمة المطلوب إنجازها *</label>
-                        <input type="text" id="taskDescInput" placeholder="مثال: فحص وتجريب جهاز إنذار الحريق الرئيسي..." required>
+                        <label><i class="fa-solid fa-pen-to-square text-info"></i> عنوان وشرح تفاصيل المهمة المطلوب إنجازها *</label>
+                        <textarea id="taskDescInput" rows="2" class="form-control" placeholder="اكتب شرحاً مفصلاً للمهمة المطلوب من العضو إنجازها في الميدان..." required></textarea>
                     </div>
                     <div class="form-grid-2">
                         <div class="form-group mb-0">
@@ -587,14 +587,30 @@
                             <select id="taskTargetMember"><option value="أحمد علي">أحمد علي</option></select>
                         </div>
                         <div class="form-group mb-0">
-                            <label>تاريخ الإنجاز *</label>
-                            <input type="date" id="taskDueDate">
+                            <label>تاريخ الموعد *</label>
+                            <input type="date" id="taskDueDate" required>
                         </div>
                     </div>
-                    <button type="submit" class="pure-green-btn btn-sm mt-2" style="justify-content:center;"><i class="fa-solid fa-paper-plane"></i> توجيه المهمة وإرسال إشعار بالميدان</button>
+                    <button type="submit" class="pure-green-btn btn-sm mt-3" style="justify-content:center;"><i class="fa-solid fa-paper-plane"></i> توجيه المهمة وإرسالها للعضو سحابياً</button>
                 </form>
 
-                <h5 class="text-sm font-bold my-2"><i class="fa-solid fa-clipboard-list text-primary"></i> سجل المهام الحية وتقارير الإنجاز العائدة:</h5>
+                <h5 class="text-sm font-bold my-2" id="tasksSectionTitle"><i class="fa-solid fa-clipboard-list text-primary"></i> قائمة المهام ومتابعة الإنجازات:</h5>
+                
+                <div id="tasksFilterBar" style="display:flex; gap:6px; margin: 10px 0; overflow-x: auto; padding-bottom: 4px;">
+                    <button type="button" class="btn btn-sm btn-secondary active-filter" onclick="filterTasksList('all', this)" style="border-radius:20px; font-size:11px; padding:5px 12px; font-weight:800;">
+                        <i class="fa-solid fa-layer-group"></i> الكل (<span id="countAllTasks">0</span>)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="filterTasksList('not_completed', this)" style="border-radius:20px; font-size:11px; padding:5px 12px; border-color:#f87171; color:#b91c1c;">
+                        <i class="fa-solid fa-circle-xmark"></i> الإنجازات الغير مكتملة (<span id="countNotCompleted">0</span>)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="filterTasksList('pending', this)" style="border-radius:20px; font-size:11px; padding:5px 12px; border-color:#fb923c; color:#c2410c;">
+                        <i class="fa-solid fa-clock"></i> بانتظار التنفيذ (<span id="countPendingTasks">0</span>)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="filterTasksList('completed', this)" style="border-radius:20px; font-size:11px; padding:5px 12px; border-color:#4ade80; color:#15803d;">
+                        <i class="fa-solid fa-circle-check"></i> المنجزة (<span id="countCompletedTasks">0</span>)
+                    </button>
+                </div>
+
                 <div id="tasksMonitoringList"></div>
                 <button type="button" class="btn btn-secondary btn-full mt-3" onclick="closeModal('tasksModal')">إغلاق النافذة</button>
             </div>
@@ -713,17 +729,18 @@
     <div class="modal-overlay" id="taskReportModal" onclick="closeModalOnOverlay(event, 'taskReportModal')">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-paper-plane text-success"></i> رفع تقرير إنجاز المهمة الميدانية</h3>
+                <h3 id="taskReportHeaderTitle"><i class="fa-solid fa-paper-plane text-success"></i> إفادة إنجاز المهمة الميدانية</h3>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="activeReportTaskId">
+                <input type="hidden" id="activeReportTaskMode" value="completed">
                 <div class="font-bold text-primary text-sm mb-2" id="reportTaskTitleDisplay"></div>
                 <form onsubmit="handleTaskReportSubmit(event); return false;">
                     <div class="form-group">
-                        <label>ملخص وإجراءات إنجاز المهمة *</label>
-                        <textarea id="taskReportNotes" rows="4" placeholder="اكتب تقرير الإنجاز ليظهر للمدير في الميدان..." required></textarea>
+                        <label id="taskReportNotesLabel">ملاحظات وملخص إنجاز المهمة *</label>
+                        <textarea id="taskReportNotes" rows="4" placeholder="اكتب التفاصيل والملاحظات لتظهر لمدير السلامة..." required></textarea>
                     </div>
-                    <button type="submit" class="pure-green-btn mt-2" style="justify-content:center;"><i class="fa-solid fa-check-double"></i> إرسال التقرير النهائي للمدير</button>
+                    <button type="submit" id="taskReportSubmitBtn" class="pure-green-btn mt-2" style="justify-content:center;"><i class="fa-solid fa-check-double"></i> إرسال التقرير للمدير</button>
                     <button type="button" class="btn btn-secondary btn-full mt-2" onclick="closeModal('taskReportModal')">إغلاق</button>
                 </form>
             </div>
