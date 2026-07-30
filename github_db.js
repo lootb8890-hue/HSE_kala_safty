@@ -201,8 +201,8 @@ class GitHubDatabase {
      * Real-time persistence: Commits any state change directly to hse_db.json on GitHub
      */
     async saveDatabase(stateObject, commitMessage = 'Update real HSE safety database state') {
-        const jsonStr = JSON.stringify(stateObject, null, 2);
-        localStorage.setItem('HSE_GITHUB_DB_BACKUP', jsonStr);
+        // Save un-sanitized local backup first
+        localStorage.setItem('HSE_GITHUB_DB_BACKUP', JSON.stringify(stateObject, null, 2));
 
         if (!this.owner || !this.repo) {
             return { success: true, localOnly: true, message: 'تم الحفظ محلياً (لا يوجد ربط سحابي مفعّل)' };
@@ -211,6 +211,30 @@ class GitHubDatabase {
         if (!this.token) {
             return { success: false, message: 'لا يمكن رفع السجل للسحابة لعدم توفر رمز المصادقة (Token).' };
         }
+
+        // SANITIZE & REMOVE ANY GITHUB SECRETS BEFORE UPLOADING TO PREVENT "SECRET DETECTED IN CONTENT" ERROR
+        const cleanState = JSON.parse(JSON.stringify(stateObject));
+        if (cleanState.manager) {
+            delete cleanState.manager.ghToken;
+            delete cleanState.manager.syncCode;
+        }
+        if (cleanState.members && Array.isArray(cleanState.members)) {
+            cleanState.members.forEach(m => {
+                delete m.syncCode;
+            });
+        }
+
+        let jsonStr = JSON.stringify(cleanState, null, 2);
+        
+        // Ultimate shield: scrub any literal token or pattern to prevent GitHub Secret Scanning blocks
+        if (this.token && this.token.length > 4) {
+            jsonStr = jsonStr.split(this.token).join("SECURED_PAT");
+        }
+        const patPrefixes = ["ghp_", "github_pat_", "gho_", "ghu_", "ghs_", "ghr_"];
+        patPrefixes.forEach(prefix => {
+            const regex = new RegExp(prefix + "[a-zA-Z0-9_]{20,}", "g");
+            jsonStr = jsonStr.replace(regex, "SECURED_GITHUB_TOKEN");
+        });
 
         this.notifyStatus('syncing', 'جاري التحديث السحابي...');
 

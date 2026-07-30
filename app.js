@@ -55,6 +55,18 @@ var ghDatabase = window.ghDatabase || null;
 let currentSigDocId = null;
 
 // ==================== INITIALIZATION & HELPER ====================
+function rehydrateLocalCredentials(loadedData) {
+    if (loadedData && loadedData.manager) {
+        loadedData.manager.ghToken = localStorage.getItem("github_token") || ghDatabase.token || "";
+        loadedData.manager.ghOwner = localStorage.getItem("github_owner") || ghDatabase.owner || loadedData.manager.ghOwner;
+        loadedData.manager.ghRepo = localStorage.getItem("github_repo") || ghDatabase.repo || loadedData.manager.ghRepo;
+        if (ghDatabase && typeof ghDatabase.generateSyncCode === 'function') {
+            loadedData.manager.syncCode = ghDatabase.generateSyncCode(loadedData.manager.ghOwner, loadedData.manager.ghRepo, loadedData.manager.ghToken);
+        }
+    }
+    return loadedData || DEFAULT_STATE;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     initGitHubDatabase();
     initAppUI();
@@ -65,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (ghDatabase && ghDatabase.owner && ghDatabase.repo) {
         const res = await ghDatabase.verifyAndFetchRealCloudDatabase();
         if (res.success && res.data) {
-            HSE_STATE = res.data;
+            HSE_STATE = rehydrateLocalCredentials(res.data);
             renderAllDynamicViews();
         }
     }
@@ -209,7 +221,7 @@ async function handleManagerSetup(e) {
         const initRes = await ghDatabase.initOrSaveRealDatabase(HSE_STATE);
         if (initRes.success) {
             if (initRes.mode === 'loaded' && initRes.data) {
-                HSE_STATE = initRes.data;
+                HSE_STATE = rehydrateLocalCredentials(initRes.data);
                 HSE_STATE.currentRole = "manager";
                 notifyText = "✅ تم الاتصال وتحميل قاعدة البيانات الحقيقية من مستودع GitHub بنجاح!\nكود الربط المعتمد أصبح جاهزاً للأعضاء.";
             } else {
@@ -271,7 +283,7 @@ async function handleMemberLogin(e) {
     }
 
     // 3. Update application state to the real cloud database records
-    HSE_STATE = verifyRes.data;
+    HSE_STATE = rehydrateLocalCredentials(verifyRes.data);
 
     // 4. Strict Credential Verification in Real Database
     const member = HSE_STATE.members.find(m => (m.user === user || m.phone === user) && m.pass === pass);
