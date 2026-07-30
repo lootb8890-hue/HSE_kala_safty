@@ -495,7 +495,22 @@ window.closeModalOnOverlay = closeModalOnOverlay;
 
 function openMemberModal() { openModal('memberModal'); }
 function openPendingSigModal() { openModal('pendingSigModal'); }
-function openTasksModal() { openModal('tasksModal'); }
+async function openTasksModal() { 
+    openModal('tasksModal');
+    if (ghDatabase && ghDatabase.owner && ghDatabase.repo) {
+        const statusEl = document.getElementById('tasksSyncStatusText');
+        if(statusEl) statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-info"></i> جاري مزامنة المهام والتقارير من خادم GitHub السحابي...`;
+        const res = await ghDatabase.verifyAndFetchRealCloudDatabase();
+        if (res.success && res.data) {
+            HSE_STATE = rehydrateLocalCredentials(res.data);
+            renderAllDynamicViews();
+            if(statusEl) statusEl.innerHTML = `<span style="color:#16a34a;"><i class="fa-solid fa-check-circle"></i> تم تحديث سجل المهام من السحابة بنجاح</span>`;
+            setTimeout(() => { if(statusEl) statusEl.innerHTML = ''; }, 3500);
+        } else if(statusEl) {
+            statusEl.innerHTML = `<span style="color:#64748b;"><i class="fa-solid fa-clock"></i> آخر نسخة محمّلة حالياً</span>`;
+        }
+    }
+}
 function openFormCustomizerModal() { openModal('formCustomizerModal'); }
 function openScheduleModal() { openModal('scheduleModal'); }
 function openCalendarModal() { openModal('calendarModal'); }
@@ -520,13 +535,23 @@ function renderAllDynamicViews() {
     updateStatsCounters();
 }
 
+function isTaskAssignedToMember(tsk, currentMem) {
+    if (!tsk || !tsk.assignedTo) return false;
+    const assigned = tsk.assignedTo.trim().toLowerCase();
+    if (assigned === "الكل" || assigned === "all" || assigned === "جميع الأعضاء" || assigned === "الكل (جميع الأعضاء)") return true;
+    if (!currentMem) return false;
+    const name = (currentMem.name || "").trim().toLowerCase();
+    const user = (currentMem.user || "").trim().toLowerCase();
+    const id = (currentMem.id || "").trim().toLowerCase();
+    return assigned === name || assigned === user || assigned === id;
+}
+
 function updateStatsCounters() {
     const pendCount = HSE_STATE.pendingSignatures.length;
     const memCount = HSE_STATE.members.length;
 
     const isMgr = HSE_STATE.currentRole === "manager";
-    const memName = HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "";
-    const tasksCount = isMgr ? HSE_STATE.tasks.length : HSE_STATE.tasks.filter(t => t.assignedTo === memName || t.assignedTo === "الكل").length;
+    const tasksCount = isMgr ? HSE_STATE.tasks.length : HSE_STATE.tasks.filter(t => isTaskAssignedToMember(t, HSE_STATE.currentMember)).length;
 
     const sp = document.getElementById('statPendingCount');
     if(sp) sp.innerText = pendCount;
@@ -549,8 +574,8 @@ function renderMembers() {
     if(!cont) return;
 
     cont.innerHTML = '';
-    if(select1) select1.innerHTML = '';
-    if(select2) select2.innerHTML = '';
+    if(select1) select1.innerHTML = '<option value="الكل (جميع الأعضاء)">الكل (جميع الأعضاء - إشعار للكل)</option>';
+    if(select2) select2.innerHTML = '<option value="الكل">الكل (جميع الأعضاء)</option>';
 
     const adminSyncCode = HSE_STATE.manager.syncCode || ghDatabase.generateSyncCode();
 
@@ -576,7 +601,7 @@ function renderMembers() {
         if(select1) {
             const opt1 = document.createElement('option');
             opt1.value = mem.name;
-            opt1.innerText = mem.name;
+            opt1.innerText = mem.name + " (" + (mem.user || "عضو") + ")";
             select1.appendChild(opt1);
         }
         if(select2) {
@@ -645,10 +670,10 @@ function filterTasksList(type, el) {
     if (el && el.parentElement) {
         el.parentElement.querySelectorAll('button').forEach(b => {
             b.style.opacity = '0.75';
-            b.style.borderWidth = '1px';
+            b.style.boxShadow = 'none';
         });
         el.style.opacity = '1';
-        el.style.borderWidth = '2px';
+        el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
     }
     renderTasksList();
 }
@@ -656,25 +681,24 @@ window.filterTasksList = filterTasksList;
 
 function renderTasksList() {
     const box = document.getElementById('tasksMonitoringList');
-    const assignForm = document.getElementById('assignTaskForm');
+    const assignWrapper = document.getElementById('assignTaskFormWrapper');
     const sectionTitle = document.getElementById('tasksSectionTitle');
     if(!box) return;
     box.innerHTML = '';
 
     const isMgr = HSE_STATE.currentRole === "manager";
-    const memName = HSE_STATE.currentMember ? HSE_STATE.currentMember.name : "";
 
-    // Only Manager can see and use the Task Assignment Form!
-    if (assignForm) assignForm.style.display = isMgr ? 'block' : 'none';
+    // Show professional Assignment box only to Managers
+    if (assignWrapper) assignWrapper.style.display = isMgr ? 'block' : 'none';
     if (sectionTitle) {
         sectionTitle.innerHTML = isMgr ? 
-            `<i class="fa-solid fa-clipboard-list text-primary"></i> إدارة ومتابعة جميع المهام والإنجازات:` : 
-            `<i class="fa-solid fa-clipboard-check text-success"></i> المهام الموجهة إليك من إدارة السلامة:`;
+            `<i class="fa-solid fa-clipboard-list text-primary"></i> إدارة ومتابعة جميع المهام والإنجازات الميدانية` : 
+            `<i class="fa-solid fa-list-check text-success"></i> قائمة المهام الميدانية الموجهة إليك`;
     }
 
-    const tasksToShow = isMgr ? HSE_STATE.tasks : HSE_STATE.tasks.filter(t => t.assignedTo === memName || t.assignedTo === "الكل");
+    const tasksToShow = isMgr ? HSE_STATE.tasks : HSE_STATE.tasks.filter(t => isTaskAssignedToMember(t, HSE_STATE.currentMember));
 
-    // Update counters in filter bar
+    // Update filter bar counters
     const cAll = document.getElementById('countAllTasks');
     const cNot = document.getElementById('countNotCompleted');
     const cPend = document.getElementById('countPendingTasks');
@@ -687,74 +711,95 @@ function renderTasksList() {
     const filteredTasks = activeTasksFilter === 'all' ? tasksToShow : tasksToShow.filter(t => t.status === activeTasksFilter);
 
     if(filteredTasks.length === 0) {
-        box.innerHTML = `<div class="p-3 text-center text-secondary"><i class="fa-solid fa-list-check"></i> لا توجد مهام مطابقة في هذا التصنيف حالياً.</div>`;
+        box.innerHTML = `
+            <div style="background:#f8fafc; border:2px dashed #cbd5e1; border-radius:12px; padding:30px; text-align:center; color:#64748b;">
+                <i class="fa-solid fa-folder-open mb-2" style="font-size:32px; opacity:0.5;"></i>
+                <p class="m-0 font-bold" style="font-size:14px;">لا توجد مهام مطابقة في هذا التصنيف حالياً.</p>
+            </div>
+        `;
         return;
     }
 
     filteredTasks.forEach(tsk => {
         const div = document.createElement('div');
-        div.className = 'sc-app-card mb-3';
+        div.style.cssText = `background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; padding:14px; position:relative; box-shadow:0 2px 6px rgba(0,0,0,0.04); transition:all 0.2s ease;`;
+
         if (tsk.status === 'not_completed') {
-            div.style.borderRight = '4px solid #ef4444';
+            div.style.borderRight = '5px solid #dc2626';
+            div.style.backgroundColor = '#fffafa';
         } else if (tsk.status === 'completed') {
-            div.style.borderRight = '4px solid #10b981';
+            div.style.borderRight = '5px solid #16a34a';
+            div.style.backgroundColor = '#fbfefb';
         } else {
-            div.style.borderRight = '4px solid #f97316';
+            div.style.borderRight = '5px solid #ea580c';
         }
 
-        let statusBadge = `<span class="status-pill orange"><i class="fa-solid fa-clock"></i> بانتظار التنفيذ</span>`;
+        let statusBadge = `<span style="background:#fff7ed; color:#c2410c; border:1px solid #fdba74; font-size:11px; font-weight:800; padding:4px 10px; border-radius:16px; display:inline-flex; align-items:center; gap:5px;"><i class="fa-solid fa-clock"></i> بانتظار التنفيذ</span>`;
         if (tsk.status === 'completed') {
-            statusBadge = `<span class="status-pill green"><i class="fa-solid fa-check"></i> تم الإنجاز</span>`;
+            statusBadge = `<span style="background:#f0fdf4; color:#15803d; border:1px solid #86efac; font-size:11px; font-weight:800; padding:4px 10px; border-radius:16px; display:inline-flex; align-items:center; gap:5px;"><i class="fa-solid fa-check-circle"></i> تم الإنجاز وموثق</span>`;
         } else if (tsk.status === 'not_completed') {
-            statusBadge = `<span class="status-pill" style="background:#fee2e2; color:#b91c1c; border:1px solid #f87171; font-weight:800;"><i class="fa-solid fa-circle-xmark"></i> لم يتم الإنجاز (إفادة ميدانية)</span>`;
+            statusBadge = `<span style="background:#fef2f2; color:#b91c1c; border:1px solid #fca5a5; font-size:11px; font-weight:800; padding:4px 10px; border-radius:16px; display:inline-flex; align-items:center; gap:5px;"><i class="fa-solid fa-circle-exclamation"></i> لم يتم الإنجاز (إفادة مرتدة)</span>`;
         }
 
         let reportBoxHtml = '';
-        if (tsk.report) {
-            if (tsk.status === 'not_completed') {
-                reportBoxHtml = `
-                    <div class="report-box p-2 my-2 rounded text-sm" style="background: #fff5f5; border: 1px solid #feb2b2; border-right: 4px solid var(--danger-color);">
-                        <strong style="color: var(--danger-color); display:block; font-size:12px;"><i class="fa-solid fa-triangle-exclamation"></i> سبب وملاحظات عدم الإنجاز (وارد من العضو):</strong>
-                        <p class="mb-0 mt-1 font-bold" style="font-size: 13px; color:#2d3748;">${tsk.report}</p>
-                        ${tsk.reportTime ? `<span style="display:block; font-size:10px; color:#718096; margin-top:4px;"><i class="fa-solid fa-clock"></i> وقت الإفادة: ${tsk.reportTime}</span>` : ''}
+        if (tsk.status === 'completed') {
+            reportBoxHtml = `
+                <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-right:4px solid #16a34a; border-radius:6px; padding:8px 12px; margin:10px 0 4px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+                    <span style="color:#15803d; font-size:12px; font-weight:800;"><i class="fa-solid fa-circle-check me-1"></i> تم إنجاز هذه المهمة وتوثيقها</span>
+                    ${tsk.reportTime ? `<span style="font-size:11px; color:#166534; font-weight:700;"><i class="fa-solid fa-clock me-1"></i> ${tsk.reportTime}</span>` : ''}
+                </div>
+            `;
+        } else if (tsk.status === 'not_completed' && tsk.report) {
+            reportBoxHtml = `
+                <div style="background:#fef2f2; border:1px solid #fecaca; border-right:4px solid #dc2626; border-radius:6px; padding:10px 12px; margin:10px 0 4px;">
+                    <div style="color:#991b1b; font-weight:800; font-size:12px; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-triangle-exclamation text-danger"></i> <span>سبب وملاحظات عدم الإنجاز (من العضو الميداني):</span>
                     </div>
-                `;
-            } else {
-                reportBoxHtml = `
-                    <div class="report-box p-2 my-2 rounded text-sm" style="background: var(--bg-main); border-right: 3px solid var(--success-color);">
-                        <strong class="text-success" style="display:block; font-size:12px;"><i class="fa-solid fa-file-contract"></i> تقرير وملاحظات الإنجاز من الميدان:</strong>
-                        <p class="mb-0 mt-1" style="font-size: 13px;">${tsk.report}</p>
-                        ${tsk.reportTime ? `<span style="display:block; font-size:10px; color:var(--text-light); margin-top:4px;"><i class="fa-solid fa-clock"></i> وقت التوثيق: ${tsk.reportTime}</span>` : ''}
-                    </div>
-                `;
-            }
+                    <p style="margin:0; color:#7f1d1d; font-size:13px; line-height:1.5; font-weight:700;">${tsk.report}</p>
+                    ${tsk.reportTime ? `<span style="display:block; font-size:11px; color:#b91c1c; margin-top:5px; font-weight:600;"><i class="fa-solid fa-clock me-1"></i> ${tsk.reportTime}</span>` : ''}
+                </div>
+            `;
         }
 
         div.innerHTML = `
-            <div class="sc-top-bar">
-                <span class="code">#${tsk.id}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="background:#f1f5f9; color:#475569; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; border:1px solid #e2e8f0;">#${tsk.id}</span>
+                    <span style="background:#eff6ff; color:#1e40af; border:1px solid #bfdbfe; font-size:12px; font-weight:800; padding:3px 10px; border-radius:14px;"><i class="fa-solid fa-user me-1"></i> الموجه إليه: <strong>${tsk.assignedTo}</strong></span>
+                </div>
                 ${statusBadge}
             </div>
-            <h3 class="font-bold my-2" style="font-size:15px; line-height:1.5;">${tsk.title}</h3>
-            <div class="meta-grid text-sm text-secondary mb-2" style="background:rgba(0,0,0,0.02); padding:6px 10px; border-radius:6px;">
-                <div><i class="fa-solid fa-user-check text-primary"></i> الموجه إليه: <strong style="color:var(--text-primary);">${tsk.assignedTo}</strong></div>
-                <div><i class="fa-solid fa-calendar text-info"></i> الموعد: <strong style="color:var(--text-primary);">${tsk.dueDate || 'فوري'}</strong></div>
+            <h3 style="font-size:15px; font-weight:800; color:#0f172a; line-height:1.5; margin:0 0 8px;">
+                <i class="fa-solid fa-circle-dot me-2" style="font-size:11px; color:var(--primary-color);"></i>${tsk.title}
+            </h3>
+            <div style="display:flex; align-items:center; gap:6px; color:#64748b; font-size:12px; font-weight:700; margin-bottom:4px;">
+                <i class="fa-solid fa-calendar-day text-info"></i> <span>التاريخ المستهدف للإنجاز: <strong style="color:#0f172a;">${tsk.dueDate || 'فوري ومستعجل'}</strong></span>
             </div>
             ${reportBoxHtml}
-            <div class="sc-actions mt-2" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+            <div style="border-top:1px dashed #e2e8f0; margin-top:10px; padding-top:10px;">
                 ${!isMgr ? `
-                    <button type="button" class="pure-green-btn btn-sm" onclick="openTaskReportModal('${tsk.id}', 'completed')" style="padding:6px 12px; font-size:12px;">
-                        <i class="fa-solid fa-check-circle"></i> ${tsk.status === 'completed' ? 'تعديل إنجاز المهمة' : 'تم الإنجاز (مع ملاحظة)'}
-                    </button>
-                    <button type="button" class="btn btn-sm" style="background-color: var(--danger-color); color: white; border: none; border-radius: var(--radius-sm); padding: 6px 12px; font-weight: 700; display:flex; align-items:center; gap:5px; font-size:12px;" onclick="openTaskReportModal('${tsk.id}', 'not_completed')">
-                        <i class="fa-solid fa-circle-xmark"></i> ${tsk.status === 'not_completed' ? 'تعديل عدم الإنجاز' : 'لم يتم الإنجاز (مع ملاحظة)'}
-                    </button>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
+                        <button type="button" onclick="markTaskCompletedImmediately('${tsk.id}')" style="background:#16a34a; color:#ffffff; border:none; border-radius:6px; padding:6px 14px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:5px; cursor:pointer; transition:all 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.15);">
+                            <i class="fa-solid fa-check"></i> <span>تم الإنجاز</span>
+                        </button>
+                        <button type="button" onclick="openTaskReportModal('${tsk.id}', 'not_completed')" style="background:#dc2626; color:#ffffff; border:none; border-radius:6px; padding:6px 14px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:5px; cursor:pointer; transition:all 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.15);">
+                            <i class="fa-solid fa-xmark"></i> <span>لم يتم الإنجاز</span>
+                        </button>
+                    </div>
                 ` : ''}
                 ${isMgr && tsk.status === 'completed' ? `
-                    <button type="button" class="btn btn-sm btn-secondary" onclick="alert('✅ تم الاطلاع على تقرير إنجاز العضو والمصادقة عليه بنجاح')"><i class="fa-solid fa-thumbs-up text-success"></i> اعتماد التقرير</button>
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button type="button" onclick="alert('✅ تم الاطلاع على إنجاز العضو والمصادقة عليه بنجاح.')" style="background:#f8fafc; color:#1e293b; border:1px solid #cbd5e1; border-radius:6px; padding:6px 12px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                            <i class="fa-solid fa-thumbs-up text-success"></i> اعتماد الإنجاز
+                        </button>
+                    </div>
                 ` : ''}
                 ${isMgr && tsk.status === 'not_completed' ? `
-                    <button type="button" class="btn btn-sm btn-secondary" onclick="reassignTask('${tsk.id}')"><i class="fa-solid fa-rotate-left text-info"></i> إرجاع وإعادة توجيه المهمة للعضو</button>
+                    <div style="display:flex; justify-content:flex-end;">
+                        <button type="button" onclick="reassignTask('${tsk.id}')" style="background:#2563eb; color:#fff; border:none; border-radius:6px; padding:6px 14px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 4px rgba(37,99,235,0.2);">
+                            <i class="fa-solid fa-rotate-left"></i> إرجاع وإعادة توجيه للميدان
+                        </button>
+                    </div>
                 ` : ''}
             </div>
         `;
@@ -782,12 +827,25 @@ async function handleAssignTask(e) {
 }
 window.handleAssignTask = handleAssignTask;
 
+async function markTaskCompletedImmediately(tskId) {
+    const target = HSE_STATE.tasks.find(i => i.id === tskId);
+    if (target) {
+        target.status = "completed";
+        target.report = "تم الإنجاز وتأكيده مباشرة من العضو.";
+        target.reportTime = new Date().toLocaleDateString('ar-SA') + ' - ' + new Date().toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'});
+    }
+    renderAllDynamicViews();
+    await commitStateToCloud("إنجاز المهمة الميدانية: " + tskId);
+    alert("✅ تم تسجيل إنجاز المهمة ورفعه فوراً لقاعدة البيانات السحابية الحقيقية!");
+}
+window.markTaskCompletedImmediately = markTaskCompletedImmediately;
+
 function openTaskReportModal(tskId, mode) {
     const t = HSE_STATE.tasks.find(i => i.id === tskId);
     if(!t) return;
     const isSuccess = mode === 'completed';
     document.getElementById("activeReportTaskId").value = tskId;
-    document.getElementById("activeReportTaskMode").value = mode || 'completed';
+    document.getElementById("activeReportTaskMode").value = mode || 'not_completed';
     
     const titleEl = document.getElementById("reportTaskTitleDisplay");
     const headerEl = document.getElementById("taskReportHeaderTitle");
@@ -797,22 +855,13 @@ function openTaskReportModal(tskId, mode) {
 
     if (titleEl) titleEl.innerText = `المهمة المستهدفة: ${t.title}`;
     
-    if (isSuccess) {
-        if (headerEl) headerEl.innerHTML = `<i class="fa-solid fa-check-circle text-success"></i> تأكيد إنجاز المهمة الميدانية`;
-        if (notesLabelEl) notesLabelEl.innerText = `ملاحظات وملخص إنجاز المهمة (سيصل للمدير) *`;
-        if (notesInput) notesInput.placeholder = `اكتب تفاصيل وإجراءات ما تم إنجازه بنجاح في الميدان...`;
-        if (submitBtn) {
-            submitBtn.className = `pure-green-btn mt-2`;
-            submitBtn.style.backgroundColor = ``;
-            submitBtn.innerHTML = `<i class="fa-solid fa-check-double"></i> إرسال تأكيد (تم الإنجاز) للمدير`;
-        }
-    } else {
+    if (!isSuccess) {
         if (headerEl) headerEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-danger"></i> إفادة بعدم إنجاز المهمة`;
         if (notesLabelEl) notesLabelEl.innerText = `أسباب وملاحظات عدم إنجاز المهمة (سترتد للمدير في الإنجازات الغير مكتملة) *`;
         if (notesInput) notesInput.placeholder = `اكتب المعوقات أو الأسباب التي منعت إنجاز المهمة في الميدان...`;
         if (submitBtn) {
             submitBtn.className = `btn btn-sm mt-2`;
-            submitBtn.style.cssText = `background-color: var(--danger-color); color: white; width: 100%; justify-content: center; padding: 10px; border-radius: var(--radius-sm); font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; border: none; cursor: pointer;`;
+            submitBtn.style.cssText = `background-color: #dc2626; color: white; width: 100%; justify-content: center; padding: 10px; border-radius: var(--radius-sm); font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; border: none; cursor: pointer;`;
             submitBtn.innerHTML = `<i class="fa-solid fa-share-from-square"></i> إرسال (لم يتم الإنجاز) مع الملاحظة للمدير`;
         }
     }
@@ -826,7 +875,7 @@ window.openTaskReportModal = openTaskReportModal;
 async function handleTaskReportSubmit(e) {
     e.preventDefault();
     const tId = document.getElementById("activeReportTaskId").value;
-    const mode = document.getElementById("activeReportTaskMode").value || "completed";
+    const mode = document.getElementById("activeReportTaskMode").value || "not_completed";
     const notes = document.getElementById("taskReportNotes").value.trim();
     
     const target = HSE_STATE.tasks.find(i => i.id === tId);
@@ -837,14 +886,10 @@ async function handleTaskReportSubmit(e) {
     }
     closeModal("taskReportModal");
     renderAllDynamicViews();
-    const actionText = mode === 'completed' ? "إنجاز المهمة الميدانية: " : "تسجيل عدم إنجاز المهمة: ";
-    await commitStateToCloud(actionText + tId);
-    if (mode === 'completed') {
-        alert("✅ تم إرسال وتوثيق إنجاز المهمة مع الملاحظة في قاعدة البيانات السحابية الحقيقية بنجاح!");
-    } else {
-        alert("⚠️ تم إرسال إفادة (لم يتم الإنجاز) مع الملاحظة لمدير السلامة في خانة الإنجازات الغير مكتملة بنجاح!");
-    }
+    await commitStateToCloud("تسجيل عدم إنجاز المهمة: " + tId);
+    alert("⚠️ تم إرسال إفادة (لم يتم الإنجاز) مع الملاحظة لمدير السلامة في خانة الإنجازات الغير مكتملة بنجاح!");
 }
+window.handleTaskReportSubmit = handleTaskReportSubmit;
 window.handleTaskReportSubmit = handleTaskReportSubmit;
 
 async function reassignTask(tskId) {
