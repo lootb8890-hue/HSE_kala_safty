@@ -3,68 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إدارة الأمن والسلامة السحابية</title>
+    <title>السلامة المهنية - HSE Management System</title>
+    <!-- FontAwesome for Vector Icons (Zero Emojis) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="app-body">
 
-    <!-- PURE WHITE LOGIN PORTAL (NO SHOWCASE FRAMES, DUAL GREEN BUTTONS) -->
+    <!-- ==================== PURE WHITE LOGIN PORTAL WITH SLEEK GREEN BUTTONS ==================== -->
     <div id="loginPortal" class="white-login-overlay">
         <div class="white-login-card">
             
-            <!-- VIEW 1: ROLE SELECTION -->
-            <div id="loginInitialSelection" class="auth-section active">
-                <div class="login-header">
-                    <div class="shield-logo-box">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <h2>بوابة الأمن والسلامة</h2>
-                    <p class="subtitle">منظومة الإدارة والمزامنة السحابية الذكية</p>
+            <div class="login-header">
+                <div class="shield-logo-box">
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
+                <h2>منظومة السلامة المهنية</h2>
+                <div class="subtitle">نظام الإدارة الميدانية الموحد عبر السحابة</div>
+            </div>
 
-                <p class="selection-prompt">يرجى تحديد الدور لتسجيل الدخول السحابي:</p>
+            <!-- SECTION 1: ROLE SELECTION (DUAL SLEEK GREEN BUTTONS) -->
+            <div id="loginInitialSelection" class="auth-section active">
+                <div class="selection-prompt"><i class="fa-solid fa-arrow-pointer text-primary"></i> حدد طريقة دخولك للنظام:</div>
                 
                 <div class="green-buttons-stack">
-                    <button class="pure-green-btn" onclick="showAuthSection('manager')">
-                        <span class="btn-icon"><i class="fa-solid fa-user-shield"></i></span>
-                        <span class="btn-text">
-                            <span class="main-title">التسجيل كمدير</span>
-                            <span class="sub-title">إدارة الصلاحيات، اعتماد التصاريح والتوقيع الإلكتروني</span>
+                    <button type="button" class="pure-green-btn" onclick="showAuthSection('manager')">
+                        <span class="btn-text-block">
+                            <span class="btn-title"><i class="fa-solid fa-user-shield ms-1"></i> التسجيل كمدير</span>
+                            <span class="btn-sub">إدارة النظام، الأعضاء، ورابط قاعدة GitHub</span>
                         </span>
-                        <i class="fa-solid fa-chevron-left chevron"></i>
+                        <i class="fa-solid fa-chevron-left btn-left-icon"></i>
                     </button>
 
-                    <button class="pure-green-btn btn-member-mode" onclick="showAuthSection('member')">
-                        <span class="btn-icon"><i class="fa-solid fa-users-viewfinder"></i></span>
-                        <span class="btn-text">
-                            <span class="main-title">التسجيل كعضو</span>
-                            <span class="sub-title">الربط السحابي المباشر، رفع البلاغات وتنفيذ المهام</span>
+                    <button type="button" class="pure-green-btn" onclick="showAuthSection('member')">
+                        <span class="btn-text-block">
+                            <span class="btn-title"><i class="fa-solid fa-users ms-1"></i> التسجيل كعضو</span>
+                            <span class="btn-sub">الدخول برقم الربط السحابي المستلم من المدير</span>
                         </span>
-                        <i class="fa-solid fa-chevron-left chevron"></i>
+                        <i class="fa-solid fa-chevron-left btn-left-icon"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- VIEW 2: MANAGER SETUP & GITHUB INTEGRATION -->
+            <!-- SECTION 2: MANAGER SETUP & CREDENTIALS -->
             <div id="managerAuthSection" class="auth-section">
                 <div class="section-top-bar">
-                    <button class="back-btn" onclick="showAuthSection('initial')"><i class="fa-solid fa-arrow-right"></i> رجوع للاختيار</button>
-                    <h4><i class="fa-solid fa-user-shield text-primary"></i> إعداد حساب المدير</h4>
+                    <button type="button" class="back-btn" onclick="showAuthSection('initial')"><i class="fa-solid fa-arrow-right"></i> رجوع للاختيار</button>
+                    <h4><i class="fa-solid fa-user-shield"></i> إعداد حساب المدير</h4>
                 </div>
-                <p class="section-desc">قم بتهيئة الحساب وبيانات المستودع لتجهيز شبكة المزامنة وتوليد مفاتيح الفريق:</p>
-                
-                <form id="managerSetupForm" onsubmit="handleManagerSetup(event)">
+
+                <form id="managerSetupForm" onsubmit="handleManagerSetup(event); return false;">
                     <div class="form-group">
                         <label>الاسم الكامل</label>
                         <input type="text" id="mgrName" value="مدير السلامة العام" required>
                     </div>
+
                     <div class="form-grid-2">
                         <div class="form-group">
-                            <label>رقم الهاتف المباشر</label>
+                            <label>رقم الهاتف</label>
                             <input type="tel" id="mgrPhone" value="0501234567" required>
                         </div>
                         <div class="form-group">
@@ -72,695 +72,678 @@
                             <input type="text" id="mgrUser" value="admin" required>
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label>كلمة المرور المشفرة</label>
+                        <label>كلمة المرور</label>
                         <input type="password" id="mgrPass" value="admin" required>
                     </div>
-                    
-                    <div class="p-2 mb-2 rounded" style="background: var(--bg-main); border: 1px dashed var(--primary-border);">
-                        <strong class="text-xs text-primary d-block mb-1"><i class="fa-brands fa-github"></i> ربط قاعدة بيانات GitHub:</strong>
+
+                    <div style="background: var(--bg-main); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 15px;">
+                        <span style="display:block; font-size:11px; font-weight:800; color:var(--primary-color); margin-bottom:8px;"><i class="fa-solid fa-cloud text-info"></i> إعدادات الربط السحابي (GitHub Sync):</span>
                         <div class="form-grid-2">
                             <div class="form-group mb-0">
                                 <label>صاحب الحساب (Owner):</label>
-                                <input type="text" id="mgrGhOwner" value="safety-management-system" placeholder="username">
+                                <input type="text" id="mgrGhOwner" value="lootb8890-hue" placeholder="username">
                             </div>
                             <div class="form-group mb-0">
                                 <label>اسم المستودع (Repo):</label>
-                                <input type="text" id="mgrGhRepo" value="hse-database" placeholder="hse-db">
+                                <input type="text" id="mgrGhRepo" value="HSE_kala_safty" placeholder="repo">
                             </div>
                         </div>
                         <div class="form-group mt-2 mb-0">
-                            <label>توكن الوصول (Token):</label>
-                            <input type="password" id="mgrGhToken" placeholder="أدخل التوكن السري هنا..." value="">
+                            <label>توكن الوصول (PAT Token):</label>
+                            <input type="password" id="mgrGhToken" placeholder="أدخل رمز التوكن السري هنا..." value="">
                         </div>
                     </div>
 
-                    <button type="submit" class="pure-green-btn btn-full submit-btn"><i class="fa-solid fa-check"></i> اعتماد الدخول والبدء كمدير</button>
+                    <button type="submit" class="pure-green-btn" style="justify-content:center;">
+                        <span class="btn-title"><i class="fa-solid fa-check"></i> اعتماد الدخول والبدء كمدير</span>
+                    </button>
                 </form>
             </div>
 
-            <!-- VIEW 3: MEMBER LOGIN WITH CLOUD SYNC CODE -->
+            <!-- SECTION 3: MEMBER LOGIN VIA SYNC CODE -->
             <div id="memberAuthSection" class="auth-section">
                 <div class="section-top-bar">
-                    <button class="back-btn" onclick="showAuthSection('initial')"><i class="fa-solid fa-arrow-right"></i> رجوع للاختيار</button>
-                    <h4><i class="fa-solid fa-users text-primary"></i> دخول عضو فريق السلامة</h4>
+                    <button type="button" class="back-btn" onclick="showAuthSection('initial')"><i class="fa-solid fa-arrow-right"></i> رجوع للاختيار</button>
+                    <h4><i class="fa-solid fa-users"></i> دخول عضو فريق السلامة</h4>
                 </div>
-                <p class="section-desc">أدخل بياناتك ورقم الربط السحابي المستلم من المدير للاتصال الفوري بقاعدة البيانات:</p>
 
-                <form id="memberLoginForm" onsubmit="handleMemberLogin(event)">
+                <form id="memberLoginForm" onsubmit="handleMemberLogin(event); return false;">
                     <div class="form-group">
-                        <label>اسم المستخدم (أو الهاتف)</label>
-                        <input type="text" id="mbrUser" placeholder="ahmed_a" required>
+                        <label>اسم المستخدم (أو رقم الهاتف)</label>
+                        <input type="text" id="mbrUser" placeholder="أدخل اسمك أو رقم هاتفك" required>
                     </div>
                     <div class="form-group">
                         <label>كلمة المرور</label>
-                        <input type="password" id="mbrPass" placeholder="••••••" required>
+                        <input type="password" id="mbrPass" placeholder="••••••••" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fa-solid fa-cloud text-primary"></i> رقم الربط السحابي (المستلم من المدير) *</label>
-                        <input type="text" id="mbrSyncCode" required class="font-mono text-center font-bold text-primary" style="letter-spacing: 1px;" placeholder="HSE-SYNC-XXXXX">
+                        <label><i class="fa-solid fa-cloud text-info"></i> رقم الربط السحابي (المستلم من المدير) *</label>
+                        <input type="text" id="mbrSyncCode" placeholder="مثال: HSE-SYNC-..." required style="border-color: var(--primary-color); font-weight:700;">
                     </div>
-
-                    <button type="submit" class="pure-green-btn btn-member-mode btn-full submit-btn"><i class="fa-solid fa-plug-circle-bolt"></i> الاتصال والمزامنة الفورية</button>
+                    
+                    <button type="submit" class="pure-green-btn" style="justify-content:center; margin-top: 1rem;">
+                        <span class="btn-title"><i class="fa-solid fa-bolt"></i> ربط ودخول فوري للنظام</span>
+                    </button>
                 </form>
             </div>
 
         </div>
     </div>
 
-    <!-- MAIN NATIVE APP HEADER -->
-    <header class="app-header">
-        <div class="header-left">
-            <button class="drawer-toggle-btn" onclick="toggleSideDrawer(true)"><i class="fa-solid fa-bars-staggered"></i></button>
-            <div class="header-brand">
-                <i class="fa-solid fa-shield-cat text-primary"></i>
-                <span>الأمن والسلامة</span>
+    <!-- ==================== SIDE DRAWER (ADMIN & SETTINGS ONLY - NO DUPLICATE NAV) ==================== -->
+    <aside id="sideDrawer" class="side-drawer">
+        <div class="drawer-header">
+            <div class="drawer-avatar" id="drawerUserAvatar"><i class="fa-solid fa-user-shield"></i></div>
+            <div class="drawer-user-info">
+                <h5 id="drawerUserName">مدير السلامة العام</h5>
+                <span id="ghSyncStatusBadge" class="text-xs"><i class="fa-solid fa-cloud text-info"></i> السحابة متصلة</span>
             </div>
         </div>
-        <div class="header-right">
-            <!-- Names Only (No role titles or tags) -->
-            <div class="user-role-badge" id="headerRoleBadge">
-                <i class="fa-solid fa-user-check text-primary"></i>
-                <span id="headerRoleText">المدير</span>
+
+        <nav class="drawer-nav">
+            <div class="menu-section-title">إدارة السلامة والميدان</div>
+            
+            <div id="managerOnlySection">
+                <a href="#" class="drawer-item" onclick="openMemberModal(); toggleSideDrawer(false);">
+                    <i class="fa-solid fa-user-plus text-primary"></i>
+                    <span>إدارة الأعضاء وكود الربط</span>
+                    <span class="badge-count" id="memberCountBadge">3</span>
+                </a>
             </div>
-            <button class="emergency-mini-btn" onclick="triggerEmergencyCall()" title="استدعاء الطوارئ المباشر"><i class="fa-solid fa-bell"></i></button>
-        </div>
-    </header>
 
-    <!-- CLOUD SYNC STATUS DISPLAY -->
-    <div id="cloudSyncDisplayBar" class="cloud-sync-display-bar">
-        <span><i class="fa-solid fa-cloud text-success"></i> حالة المزامنة: متصل بمستودع السحابة</span>
-        <span class="sync-id font-mono text-xs" id="displayCloudSyncCode">HSE-SYNC-READY</span>
-    </div>
+            <a href="#" class="drawer-item" onclick="openPendingSigModal(); toggleSideDrawer(false);">
+                <i class="fa-solid fa-file-signature text-warning"></i>
+                <span>الاعتمادات والتوقيع الرقمي</span>
+                <span class="badge-danger-pulse" id="pendingSigCount">2</span>
+            </a>
 
-    <!-- MAIN INTERACTIVE SCREENS -->
-    <main class="app-main-content">
+            <a href="#" class="drawer-item" onclick="openTasksModal(); toggleSideDrawer(false);">
+                <i class="fa-solid fa-list-check text-info"></i>
+                <span>توجيه المهام وتقارير الإنجاز</span>
+            </a>
+
+            <a href="#" class="drawer-item" onclick="openFormCustomizerModal(); toggleSideDrawer(false);">
+                <i class="fa-solid fa-sliders text-purple"></i>
+                <span>تخصيص نماذج العمل (حقول)</span>
+            </a>
+
+            <a href="#" class="drawer-item" onclick="openCalendarModal(); toggleSideDrawer(false);">
+                <i class="fa-solid fa-calendar-days text-orange"></i>
+                <span>تقويم مواعيد السلامة</span>
+            </a>
+
+            <a href="#" class="drawer-item" onclick="openGitHubModal(); toggleSideDrawer(false);">
+                <i class="fa-solid fa-cloud-arrow-up text-primary"></i>
+                <span>إعدادات قاعدة GitHub Sync</span>
+            </a>
+
+            <div class="menu-section-title">إعدادات المظهر والحساب</div>
+            <a href="#" class="drawer-item" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i> <span>تغيير المظهر (ليلي / نهاري)</span></a>
+            <a href="#" class="drawer-item" onclick="switchRolePortal()"><i class="fa-solid fa-right-left text-primary"></i> <span>تبديل الحساب / خروج</span></a>
+        </nav>
+    </aside>
+    <div id="drawerOverlay" class="drawer-overlay" onclick="toggleSideDrawer(false)"></div>
+
+    <!-- ==================== NATIVE MOBILE APP UI CONTAINER ==================== -->
+    <div id="nativeAppContainer" class="native-app-container">
         
-        <!-- SCREEN 1: HOME DASHBOARD (ADVANCED INTERACTIVE SAFETY WIDGETS!) -->
-        <div id="view-home" class="app-screen-view active">
-            <div class="dashboard-grid">
-                
-                <!-- WIDGET 1: INTERACTIVE RISK MATRIX CALCULATOR (NEW) -->
-                <div class="widget-card">
-                    <div class="widget-header">
-                        <h4><i class="fa-solid fa-calculator text-primary"></i> حاسبة ومصفوفة تقييم المخاطر</h4>
-                        <span class="text-xs text-secondary">أداة ميدانية تفاعلية</span>
-                    </div>
-                    <div class="risk-matrix-box">
-                        <div class="risk-selectors">
-                            <div>
-                                <label class="text-xs font-bold text-secondary d-block mb-1">احتمالية الحدوث:</label>
-                                <select id="riskLikelihood" onchange="calculateRiskMatrix()">
-                                    <option value="1">منخفضة (نادر)</option>
-                                    <option value="2" selected>متوسطة (محتمل)</option>
-                                    <option value="3">عالية (شائع)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-secondary d-block mb-1">شدة التداعيات:</label>
-                                <select id="riskSeverity" onchange="calculateRiskMatrix()">
-                                    <option value="1">بسيطة (إصابة طفيفة)</option>
-                                    <option value="2" selected>مؤثرة (إصابة متوسطة)</option>
-                                    <option value="3">جسيمة (حرجة / توقف)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="riskResultBox" class="risk-result-meter mod-risk">
-                            <i class="fa-solid fa-triangle-exclamation"></i> مستوى الخطورة: متوسط (يلزم استصدار تصريح عمل ومراقبة المشرف)
-                        </div>
-                    </div>
+        <!-- Compact Top Header (Displays only person name and icons) -->
+        <header class="app-top-header">
+            <div class="header-right">
+                <button type="button" class="menu-hamburger" onclick="toggleSideDrawer(true)"><i class="fa-solid fa-bars"></i></button>
+                <div class="app-branding" onclick="switchAppView('home')">
+                    <i class="fa-solid fa-shield-halved logo-icon"></i>
+                    <span class="app-title">السلامة المهنية</span>
                 </div>
-
-                <!-- WIDGET 2: DAILY PPE RAPID CHECKLIST (NEW) -->
-                <div class="widget-card">
-                    <div class="widget-header">
-                        <h4><i class="fa-solid fa-vest text-success"></i> فحص الجاهزية الوقائية الصباحية</h4>
-                        <span class="text-xs text-secondary" id="ppeStatusDate">اليوم</span>
-                    </div>
-                    <div class="ppe-check-list" id="ppeChecklistContainer">
-                        <label class="ppe-item"><input type="checkbox" checked> <i class="fa-solid fa-helmet-safety text-primary"></i> الخوذة الواقية المعتمدة</label>
-                        <label class="ppe-item"><input type="checkbox" checked> <i class="fa-solid fa-user-shield text-success"></i> سترة السلامة الفسفورية</label>
-                        <label class="ppe-item"><input type="checkbox" checked> <i class="fa-solid fa-shoe-prints text-warning"></i> حذاء السلامة الواقي من الصدمات</label>
-                        <label class="ppe-item"><input type="checkbox" checked> <i class="fa-solid fa-glasses text-info"></i> نظارات وحماية العين الميدانية</label>
-                        <label class="ppe-item"><input type="checkbox"> <i class="fa-solid fa-gauge-high text-danger"></i> كاشف الغازات المحول والمحاير</label>
-                    </div>
-                    <div class="mt-2 text-center">
-                        <button class="btn btn-primary-ghost btn-full" onclick="submitPPECheck()"><i class="fa-solid fa-clipboard-check"></i> تأكيد تسجيل جاهزية معدات الوقاية للوردية</button>
-                    </div>
-                </div>
-
-                <!-- WIDGET 3: ENVIRONMENTAL & HEAT STRESS MONITOR (NEW) -->
-                <div class="widget-card">
-                    <div class="widget-header">
-                        <h4><i class="fa-solid fa-temperature-three-quarters text-danger"></i> مؤشر بيئة الموقع والإجهاد الحراري</h4>
-                        <span class="text-xs text-secondary"><i class="fa-solid fa-satellite-dish"></i> مراقبة حية</span>
-                    </div>
-                    <div class="weather-stats-row">
-                        <div class="weather-box">
-                            <span>الحرارة</span>
-                            <strong class="text-danger">37°C</strong>
-                        </div>
-                        <div class="weather-box">
-                            <span>الرطوبة</span>
-                            <strong class="text-info">42%</strong>
-                        </div>
-                        <div class="weather-box">
-                            <span>سرعة الرياح</span>
-                            <strong>14 km/h</strong>
-                        </div>
-                    </div>
-                    <div class="weather-advice">
-                        <i class="fa-solid fa-circle-info text-info font-bold"></i>
-                        <span>توجيه الطقس: مستوى إجهاد معتدل. ينصح بشرب كميات وفيرة من المياه وأخذ استراحة 10 دقائق كل ساعة في المنطقة المظللة.</span>
-                    </div>
-                </div>
-
-                <!-- WIDGET 4: TOOLBOX TALK DAILY BRIEFING -->
-                <div class="widget-card">
-                    <div class="widget-header">
-                        <h4><i class="fa-solid fa-bullhorn text-warning"></i> توجيهات السلامة الصباحية (Toolbox Talk)</h4>
-                        <span class="text-xs text-secondary">من المدير</span>
-                    </div>
-                    <div class="toolbox-talk">
-                        <strong><i class="fa-solid fa-quote-right"></i> الإجراءات الآمنة أثناء عمليات الرفع الميكانيكي وتشغيل الونش</strong>
-                        <p>يمنع منعاً باتاً الوقوف أو السير أسفل الحمولات المعلقة. يجب التأكد من سلامة وايرات الرفع ووجود مؤشر الزوايا في الرافعة، والتنويه الصوتي أثناء تحريك السلاسل الحديدية.</p>
-                    </div>
-                </div>
-
             </div>
-        </div>
-
-        <!-- SCREEN 2: FIELD SC REPORTS -->
-        <div id="view-sc-reports" class="app-screen-view">
-            <div class="widget-card mb-3">
-                <div class="widget-header">
-                    <h4><i class="fa-solid fa-plus-circle text-primary"></i> تقديم بلاغ حالة خطر (Safety Observation)</h4>
+            <div class="header-left">
+                <div class="user-role-badge" id="headerRoleBadge" onclick="toggleSideDrawer(true)">
+                    <i class="fa-solid fa-user"></i>
+                    <span id="headerRoleText">مدير السلامة العام</span>
                 </div>
-                <form id="nativeSCForm" onsubmit="handleNewSCSubmit(event)">
-                    <div class="form-group">
-                        <label>عنوان أو وصف الحالة المرصودة</label>
-                        <input type="text" id="newScTitle" placeholder="مثال: تسرب زيت في ممر المشاة الرئيسي" required>
+                <button type="button" class="notif-btn" onclick="openPendingSigModal()">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notif-dot" id="notifDot"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main App Screen Viewport -->
+        <main class="app-main-viewport">
+
+            <!-- VIEW 1: HOME EXECUTIVE DASHBOARD (NO REDUNDANT BUTTON BLOCKS) -->
+            <section id="view-home" class="app-screen-view active">
+                
+                <div class="home-hero-banner">
+                    <div class="banner-content">
+                        <h4>منظومة السلامة الميدانية</h4>
+                        <h2>سلامتك مسؤوليتنا جميعاً</h2>
+                        <p id="cloudSyncDisplayBar" class="cloud-info-pill"><i class="fa-solid fa-cloud-check"></i> رقم الربط السحابي: متصل بالمستودع</p>
                     </div>
+                </div>
+
+                <!-- Emergency Instant Action -->
+                <div class="emergency-trigger-banner" onclick="triggerEmergencyCall()">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <i class="fa-solid fa-phone-volume emergency-icon"></i>
+                        <div class="emergency-text">
+                            <h4>اتصال الطوارئ المباشر</h4>
+                            <p>ربط فوري مع مركز العمليات وإدارة الطوارئ بالموقع</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-left" style="font-size:14px;"></i>
+                </div>
+
+                <!-- EXECUTIVE KPI DASHBOARD WIDGETS -->
+                <h4 class="section-subtitle"><i class="fa-solid fa-chart-pie text-primary"></i> مؤشرات الميدان الفورية:</h4>
+                
+                <div class="dashboard-kpi-grid">
+                    <!-- Widget 1: Tasks -->
+                    <div class="kpi-card info" onclick="openTasksModal()">
+                        <div class="kpi-icon"><i class="fa-solid fa-list-check"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-num" id="statTasksCount">2</span>
+                            <span class="kpi-label">المهام الموجهة</span>
+                        </div>
+                    </div>
+
+                    <!-- Widget 2: Pending Signatures -->
+                    <div class="kpi-card orange" onclick="openPendingSigModal()">
+                        <div class="kpi-icon"><i class="fa-solid fa-file-signature"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-num" id="statPendingCount">2</span>
+                            <span class="kpi-label">بانتظار الاعتماد</span>
+                        </div>
+                    </div>
+
+                    <!-- Widget 3: Members -->
+                    <div class="kpi-card green" onclick="openMemberModal()">
+                        <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-num" id="statMembersCount">4</span>
+                            <span class="kpi-label">فريق السلامة</span>
+                        </div>
+                    </div>
+
+                    <!-- Widget 4: Fire Safety Check -->
+                    <div class="kpi-card danger" onclick="switchAppView('extinguishers')">
+                        <div class="kpi-icon"><i class="fa-solid fa-fire-extinguisher"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-num" style="font-size:14px;">جاهز للفحص</span>
+                            <span class="kpi-label">سجل المطافئ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT FIELD ACTIVITY SUMMARY -->
+                <h4 class="section-subtitle"><i class="fa-solid fa-broadcast-tower text-success"></i> أحدث البلاغات والعمليات الميدانية:</h4>
+                
+                <div class="sc-app-card" style="border-right: 4px solid var(--warning-color);">
+                    <div class="sc-top-bar">
+                        <span class="code">#SC-2024-0001 (تسرب زيت)</span>
+                        <span class="status-pill orange"><i class="fa-solid fa-clock"></i> يتطلب توقيع المدير</span>
+                    </div>
+                    <p class="text-sm my-1 font-bold">تسرب زيت في خط الإنتاج رقم (3) بالمبنى الرئيسي</p>
+                    <div class="meta-grid">
+                        <span><i class="fa-solid fa-user"></i> أحمد علي</span>
+                        <span><i class="fa-solid fa-calendar"></i> اليوم</span>
+                    </div>
+                </div>
+
+                <div class="sc-app-card" style="border-right: 4px solid var(--primary-color);">
+                    <div class="sc-top-bar">
+                        <span class="code">#PTW-2024-015 (تصريح لحام)</span>
+                        <span class="status-pill green"><i class="fa-solid fa-check"></i> مكتمل التدابير</span>
+                    </div>
+                    <p class="text-sm my-1 font-bold">أعمال لحام في خزان الوقود رقم (5)</p>
+                    <div class="meta-grid">
+                        <span><i class="fa-solid fa-user"></i> سامي الجهني</span>
+                        <span><i class="fa-solid fa-calendar"></i> 2024/05/22</span>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- VIEW 2: EXTINGUISHERS & FIRE SAFETY INSPECTIONS -->
+            <section id="view-extinguishers" class="app-screen-view">
+                <div class="section-top-bar">
+                    <h4><i class="fa-solid fa-fire-extinguisher text-danger"></i> فحص وصيانة طفايات الحريق</h4>
+                    <span class="status-pill green"><i class="fa-solid fa-check"></i> فحص شهري منتظم</span>
+                </div>
+
+                <div class="sc-app-card">
+                    <div class="sc-top-bar">
+                        <span class="code">طفية بودرة جافة (DCP-101)</span>
+                        <span class="status-pill green">صالحة للعمل</span>
+                    </div>
+                    <p class="text-sm font-bold my-1">الموقع: المبنى الإداري - الدور الأرضي (بجانب الاستقبال)</p>
+                    <div class="meta-grid my-2">
+                        <span><i class="fa-solid fa-calendar-check"></i> آخر فحص: 2024/05/10</span>
+                        <span><i class="fa-solid fa-tag"></i> الوزن: 6 كجم</span>
+                    </div>
+                    <div class="sc-actions">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="alert('تم المصادقة على سلامة الطفية وضغط المؤشر بنجاح')"><i class="fa-solid fa-check text-success"></i> تأكيد الفحص الميداني</button>
+                    </div>
+                </div>
+
+                <div class="sc-app-card">
+                    <div class="sc-top-bar">
+                        <span class="code">طفية غاز CO2 (CO2-204)</span>
+                        <span class="status-pill orange">تستحق الصيانة قريباً</span>
+                    </div>
+                    <p class="text-sm font-bold my-1">الموقع: غرفة السيرفرات الرئيسية - الدور الأول</p>
+                    <div class="meta-grid my-2">
+                        <span><i class="fa-solid fa-calendar-check"></i> آخر فحص: 2024/04/15</span>
+                        <span><i class="fa-solid fa-tag"></i> الوزن: 5 كجم</span>
+                    </div>
+                    <div class="sc-actions">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="openTaskReportModal('TSK-101')"><i class="fa-solid fa-wrench"></i> طلب صيانة واستبدال</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: SC REPORTS LIST -->
+            <section id="view-sc-reports" class="app-screen-view">
+                <div class="section-top-bar">
+                    <h4><i class="fa-solid fa-clipboard-check"></i> سجل بلاغات السلامة الميدانية (SC)</h4>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="switchAppView('new-sc')"><i class="fa-solid fa-plus"></i> بلاغ جديد</button>
+                </div>
+                <div id="scReportsContainer">
+                    <div class="sc-app-card">
+                        <div class="sc-top-bar">
+                            <span class="code">#SC-2024-0001</span>
+                            <span class="status-pill orange"><i class="fa-solid fa-triangle-exclamation"></i> بانتظار توقيع المدير</span>
+                        </div>
+                        <h3>تسرب زيت في خط الإنتاج رقم (3)</h3>
+                        <div class="meta-grid">
+                            <span><i class="fa-regular fa-clock"></i> 2024/05/21</span>
+                            <span><i class="fa-regular fa-user"></i> المنشئ: أحمد علي</span>
+                            <span><i class="fa-solid fa-location-dot"></i> الموقع: مبنى الإنتاج</span>
+                        </div>
+                        <div class="sc-actions">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="openSignatureModal('SC-2024-0001')"><i class="fa-solid fa-signature text-primary"></i> التوقيع الرقمي للاعتماد</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: PTW WORK PERMITS -->
+            <section id="view-ptw-list" class="app-screen-view">
+                <div class="section-top-bar">
+                    <h4><i class="fa-solid fa-file-signature text-info"></i> سجل تصاريح العمل (Permits To Work)</h4>
+                    <span class="status-pill green"><i class="fa-solid fa-check"></i> آمن ومراقب</span>
+                </div>
+                
+                <div class="sc-app-card">
+                    <div class="sc-top-bar">
+                        <span class="code">#PTW-2024-015 (عمل ساخن / Hot Work)</span>
+                        <span class="status-pill orange" id="ptwDocStatus"><i class="fa-solid fa-clock"></i> يتطلب توقيع المدير</span>
+                    </div>
+                    <h3 class="my-1">أعمال لحام في خزان الوقود رقم (5)</h3>
+                    <div class="meta-grid my-2">
+                        <span><i class="fa-solid fa-location-dot"></i> منطقة الخزانات الشمالية</span>
+                        <span><i class="fa-solid fa-user"></i> سامي الجهني</span>
+                    </div>
+
+                    <div style="background: var(--bg-main); padding: 10px; border-radius: var(--radius-sm); font-size:12px; margin-top: 10px;">
+                        <span class="font-bold text-success d-block mb-1"><i class="fa-solid fa-shield-halved"></i> تدابير السلامة المؤكدة:</span>
+                        <div><i class="fa-solid fa-check text-success"></i> تم إخلاء الغازات القابلة للاشتعال بنجاح.</div>
+                        <div><i class="fa-solid fa-check text-success"></i> وجود طفايات بودرة جافة في مكان اللحام.</div>
+                    </div>
+
+                    <div class="sc-actions mt-2">
+                        <button type="button" class="pure-green-btn btn-sm" onclick="openSignatureModal('PTW-2024-015')">
+                            <span class="btn-title"><i class="fa-solid fa-signature"></i> التوقيع والاعتماد النهائي</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: TEAM CHAT & EMERGENCY NOTIFICATIONS -->
+            <section id="view-team-chat" class="app-screen-view">
+                <div class="section-top-bar">
+                    <h4><i class="fa-solid fa-comments text-purple"></i> غرفة العمليات والتواصل الفوري</h4>
+                    <span class="status-pill green">متصل بالرمز السحابي</span>
+                </div>
+
+                <div class="chat-viewport-box">
+                    <div class="chat-messages" id="chatMessagesBox">
+                        <div class="message received">
+                            <strong style="color:var(--primary-color); display:block; font-size:11px;">مدير السلامة العام:</strong>
+                            <span>يرجى من جميع الأعضاء الميدانيين التأكد من فحص طفايات الحريق بالمستودع الرئيسي وتأكيد التجاوب عبر النظام.</span>
+                            <span style="font-size:10px; color:var(--text-light); display:block; text-align:left; margin-top:2px;">08:15 ص</span>
+                        </div>
+                        <div class="message sent">
+                            <strong style="display:block; font-size:11px;">أحمد علي:</strong>
+                            <span>علم، تم التوجه إلى المستودع وسيتم رفع التقرير فور الانتهاء من الفحص.</span>
+                            <span style="font-size:10px; color:var(--text-light); display:block; text-align:left; margin-top:2px;">08:18 ص</span>
+                        </div>
+                    </div>
+                    <form class="chat-input-bar" onsubmit="handleSendChatMessage(event); return false;">
+                        <input type="text" id="chatInputText" class="form-control" placeholder="اكتب ملاحظتك أو تنبيهك الميداني هنا..." required style="min-height:38px;">
+                        <button type="submit" class="btn btn-primary btn-sm" style="min-height:38px;"><i class="fa-solid fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- VIEW 6: NEW SAFETY CARD FORM (CENTER BUTTON) -->
+            <section id="view-new-sc" class="app-screen-view">
+                <div class="section-top-bar">
+                    <h4><i class="fa-solid fa-file-circle-plus text-primary"></i> تقديم بلاغ سلامة ميداني جديد (Safety Card)</h4>
+                </div>
+
+                <form id="nativeSCForm" onsubmit="handleNewSCSubmit(event); return false;">
+                    <div class="form-group">
+                        <label>عنوان الملاحظة أو الحالة غير الآمنة *</label>
+                        <input type="text" id="newScTitle" placeholder="مثال: أسلاك كهربائية مكشوفة بجوار مولد الماء..." required>
+                    </div>
+
                     <div class="form-grid-2">
                         <div class="form-group">
-                            <label>الموقع بالميدان</label>
-                            <input type="text" id="newScLoc" placeholder="المستودع الشمالي" required>
+                            <label>تحديد الموقع *</label>
+                            <select id="newScLoc" required>
+                                <option value="مبنى الإنتاج - الدور الأرضي">مبنى الإنتاج - الدور الأرضي</option>
+                                <option value="منطقة الخزانات والمستودعات">منطقة الخزانات والمستودعات</option>
+                                <option value="المبنى الإداري الرئيسي">المبنى الإداري الرئيسي</option>
+                                <option value="الساحات الخارجية والورش">الساحات الخارجية والورش</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>مستوى الأولوية</label>
-                            <select id="newScPrio">
-                                <option value="عالية">عالية (تأثير فوري)</option>
-                                <option value="متوسّط">متوسط (يتطلب صيانة)</option>
-                                <option value="منخفض">منخفض (تنبيه وقائي)</option>
+                            <label>مستوى الأولوية *</label>
+                            <select id="newScPrio" required>
+                                <option value="عالية">عالية الخطورة (فوري)</option>
+                                <option value="متوسطة" selected>متوسطة</option>
+                                <option value="منخفضة">ملاحظة وقائية</option>
                             </select>
                         </div>
                     </div>
-                    
-                    <!-- Dynamic custom fields render here -->
-                    <div id="nativeCustomFieldsBox"></div>
 
-                    <div class="mt-2">
-                        <button type="submit" class="pure-green-btn btn-full"><i class="fa-solid fa-paper-plane"></i> رفع البلاغ واعتماده بسجّلات السحابة</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="section-top-bar mt-3">
-                <h4><i class="fa-solid fa-list-check text-primary"></i> سجل بلاغات الميدان النشطة</h4>
-            </div>
-            <div id="scReportsContainer">
-                <!-- Sample Card -->
-                <div class="sc-app-card">
-                    <div class="sc-top-bar">
-                        <span class="code">#SC-2024-001</span>
-                        <span class="status-pill orange"><i class="fa-solid fa-clock"></i> يتطلب توقيع واعتماد المدير</span>
-                    </div>
-                    <h3>تسرب زيت في ممر المشاة الرئيسي رقم (3)</h3>
-                    <div class="meta-grid">
-                        <div><i class="fa-solid fa-user"></i> الراصد: أحمد علي</div>
-                        <div><i class="fa-solid fa-calendar"></i> 2026/07/30</div>
-                        <div><i class="fa-solid fa-location-dot"></i> المصنع الرئيسي</div>
-                        <div><i class="fa-solid fa-flag text-danger"></i> أولوية: عالية</div>
-                    </div>
-                    <div class="sc-actions">
-                        <button class="pure-green-btn btn-sm" onclick="openSignatureModal('SC-2024-001')"><i class="fa-solid fa-signature"></i> التوقيع الإلكتروني للاعتماد</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCREEN 3: WORK PERMITS (PTW) -->
-        <div id="view-ptw-list" class="app-screen-view">
-            <div class="widget-card mb-3">
-                <div class="widget-header">
-                    <h4><i class="fa-solid fa-stamp text-primary"></i> استصدار تصريح عمل عالي المخاطر (PTW)</h4>
-                </div>
-                <div class="form-grid-2 mb-2">
-                    <button class="btn btn-secondary" onclick="alert('تم تجهيز استمارة الأعمال الساخنة واللحام')"><i class="fa-solid fa-fire text-danger"></i> أعمال ساخنة ولحام</button>
-                    <button class="btn btn-secondary" onclick="alert('تم تجهيز استمارة الدخول للمكان المغلق')"><i class="fa-solid fa-cubes text-warning"></i> أماكن مغلقة وصوامع</button>
-                    <button class="btn btn-secondary" onclick="alert('تم تجهيز استمارة العمل على ارتفاع')"><i class="fa-solid fa-arrow-up-right-dots text-info"></i> العمل على ارتفاع</button>
-                    <button class="btn btn-secondary" onclick="alert('تم تجهيز استمارة العزل الكهربائي')"><i class="fa-solid fa-bolt text-purple"></i> عزل كهربائي (LOTO)</button>
-                </div>
-            </div>
-
-            <div id="ptwQueueContainer">
-                <div class="sc-app-card">
-                    <div class="sc-top-bar">
-                        <span class="code">#PTW-2024-015</span>
-                        <span class="status-pill orange" id="ptwDocStatus"><i class="fa-solid fa-hourglass-start"></i> بانتظار توقيع المدير</span>
-                    </div>
-                    <h3>تصريح أعمال لحام وصيانة في الخزان رقم (5)</h3>
-                    <div class="meta-grid">
-                        <div><i class="fa-solid fa-user-gear"></i> المنفذ: سامي الجهني</div>
-                        <div><i class="fa-solid fa-clock"></i> المدة: 6 ساعات</div>
-                        <div><i class="fa-solid fa-square-check text-success"></i> فحص الغازات: مطابق</div>
-                        <div><i class="fa-solid fa-shield text-primary"></i> مراقب حريق: معين</div>
-                    </div>
-                    <div class="sc-actions">
-                        <span class="text-sm font-bold" id="managerSigStamp"></span>
-                        <button class="pure-green-btn btn-sm" onclick="openSignatureModal('PTW-2024-015')"><i class="fa-solid fa-signature"></i> اعتماد وتوقيع التصريح إلكترونياً</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCREEN 4: TASKS MONITORING -->
-        <div id="view-tasks" class="app-screen-view">
-            <div id="managerOnlySection" class="widget-card mb-3">
-                <div class="widget-header">
-                    <h4><i class="fa-solid fa-list-check text-primary"></i> توجيه تكليف أمني لعضو محدد</h4>
-                </div>
-                <form id="assignTaskForm" onsubmit="handleAssignTask(event)">
                     <div class="form-group">
-                        <label>تفاصيل التكليف المطلوب تنفيذه</label>
-                        <input type="text" id="taskDescInput" placeholder="فحص طفايات ومخارج طوارئ الدور الثاني..." required>
+                        <label>وصف الملاحظة والإجراء الوقائي المنفّذ</label>
+                        <textarea id="newScDesc" rows="3" placeholder="اشرح تفاصيل الخطر وكيف تم التعامل معه ميدانيّاً..."></textarea>
                     </div>
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label>الموجه إليه (اسم العضو)</label>
-                            <select id="taskTargetMember"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>الموعد النهائي</label>
-                            <input type="date" id="taskDueDate" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="pure-green-btn btn-full"><i class="fa-solid fa-paper-plane"></i> إرسال التكليف للميدان</button>
+
+                    <!-- Dynamic Custom Fields inserted by Manager -->
+                    <div id="nativeCustomFieldsBox" class="dynamic-custom-fields-area"></div>
+
+                    <button type="submit" class="pure-green-btn mt-3" style="justify-content:center;">
+                        <span class="btn-title"><i class="fa-solid fa-paper-plane"></i> إرسال البلاغ للاعتماد السحابي فوراً</span>
+                    </button>
                 </form>
-            </div>
+            </section>
 
-            <div class="section-top-bar">
-                <h4><i class="fa-solid fa-bars-progress text-primary"></i> المهام الميدانية والمتابعة الحية</h4>
-            </div>
-            <div id="tasksMonitoringList"></div>
-        </div>
+        </main>
 
-    </main>
+        <!-- ==================== SLEEK BOTTOM NAVIGATION BAR (ZERO DUPLICATION) ==================== -->
+        <nav class="app-bottom-nav">
+            <button type="button" class="nav-btn active" data-view="home" onclick="switchAppView('home')">
+                <i class="fa-solid fa-house"></i>
+                <span>الرئيسية</span>
+            </button>
 
-    <!-- BOTTOM NAVIGATION BAR (EXCLUSIVELY 4 CORE DAILY TABS - ZERO DUPLICATES WITH DRAWER) -->
-    <nav class="app-bottom-nav">
-        <button class="nav-btn active" data-view="home" onclick="switchAppView('home')">
-            <i class="fa-solid fa-house"></i>
-            <span>الرئيسية</span>
-        </button>
-        <button class="nav-btn" data-view="sc-reports" onclick="switchAppView('sc-reports')">
-            <i class="fa-solid fa-file-shield"></i>
-            <span>البلاغات</span>
-        </button>
-        <button class="nav-btn" data-view="ptw-list" onclick="switchAppView('ptw-list')">
-            <i class="fa-solid fa-stamp"></i>
-            <span>التصاريح</span>
-        </button>
-        <button class="nav-btn" data-view="tasks" onclick="switchAppView('tasks')">
-            <i class="fa-solid fa-tower-observation"></i>
-            <span>التكليفات</span>
-        </button>
-    </nav>
+            <button type="button" class="nav-btn" data-view="sc-reports" onclick="switchAppView('sc-reports')">
+                <i class="fa-solid fa-clipboard-check"></i>
+                <span>الاسكار</span>
+            </button>
 
-    <!-- SIDE DRAWER (ADVANCED REGISTRIES, VAULT & ADMIN TOOLS ONLY - ZERO REPETITION!) -->
-    <div class="drawer-overlay" id="drawerOverlay" onclick="toggleSideDrawer(false)"></div>
-    <aside class="side-drawer" id="sideDrawer">
-        <!-- Names only, NO X close button -->
-        <div class="drawer-user-profile">
-            <div class="drawer-avatar" id="drawerUserAvatar"><i class="fa-solid fa-user-shield"></i></div>
-            <div class="drawer-user-info">
-                <h4 id="drawerUserName">مدير السلامة العام</h4>
-                <span><i class="fa-solid fa-circle text-success" style="font-size:8px;"></i> متصل ومصادق بالرقم السحابي</span>
-            </div>
-        </div>
-        
-        <div class="drawer-menu">
-            <!-- BRAND NEW DISTINCTIVE ADMINISTRATIVE & SPECIALIZED TOOLS -->
-            <button class="drawer-item" onclick="openAnalyticsModal(); toggleSideDrawer(false);"><i class="fa-solid fa-chart-line text-primary"></i> <span>تحليلات السلامة والأداء (KPIs)</span></button>
-            
-            <button class="drawer-item" onclick="openCertificationsModal(); toggleSideDrawer(false);"><i class="fa-solid fa-certificate text-success"></i> <span>مستودع شهادات وتراخيص الفريق</span></button>
-            
-            <button class="drawer-item" onclick="openFireRegistryModal(); toggleSideDrawer(false);"><i class="fa-solid fa-fire-extinguisher text-danger"></i> <span>سجل فحص الطفايات ومعدات الإطفاء</span></button>
-            
-            <button class="drawer-item" onclick="openCalendarModal(); toggleSideDrawer(false);"><i class="fa-solid fa-calendar-days text-info"></i> <span>التقويم الأمني وجدول المناسبات</span></button>
+            <!-- Center Action Button -->
+            <button type="button" class="nav-btn-center" onclick="switchAppView('new-sc')">
+                <div class="plus-circle"><i class="fa-solid fa-plus"></i></div>
+                <span>بلاغ خطر</span>
+            </button>
 
-            <div class="drawer-divider"></div>
+            <button type="button" class="nav-btn" data-view="ptw-list" onclick="switchAppView('ptw-list')">
+                <i class="fa-solid fa-file-signature"></i>
+                <span>التصاريح</span>
+            </button>
 
-            <button class="drawer-item" onclick="openFormCustomizerModal(); toggleSideDrawer(false);"><i class="fa-solid fa-sliders text-warning"></i> <span>مخصص الحقول الذكي (للمدير)</span></button>
+            <button type="button" class="nav-btn" data-view="team-chat" onclick="switchAppView('team-chat')">
+                <i class="fa-solid fa-comments"></i>
+                <span>المحادثات</span>
+            </button>
+        </nav>
 
-            <button class="drawer-item" onclick="openMemberModal(); toggleSideDrawer(false);"><i class="fa-solid fa-users-gear text-purple"></i> <span>إدارة الفريق وأرقام الربط</span></button>
-            
-            <button class="drawer-item" onclick="openGitHubModal(); toggleSideDrawer(false);"><i class="fa-solid fa-server text-teal"></i> <span>إعدادات قاعدة بيانات GitHub</span></button>
-
-            <div class="drawer-divider"></div>
-
-            <button class="drawer-item" onclick="toggleTheme();"><i class="fa-solid fa-circle-half-stroke text-secondary"></i> <span>تبديل وضع الأمان والإضاءة</span></button>
-
-            <button class="drawer-item" onclick="switchRolePortal();"><i class="fa-solid fa-rotate-left text-primary"></i> <span>تبديل الحساب وشاشة الدخول</span></button>
-        </div>
-    </aside>
-
-    <!-- ==================== MODALS VAULT (NO X BUTTONS!) ==================== -->
-
-    <!-- MODAL 1: ANALYTICS & KPIS (NEW MODULE!) -->
-    <div class="modal-overlay" id="analyticsModal" onclick="closeModalOnOverlay(event, 'analyticsModal')">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-chart-line text-primary"></i> تحليلات السلامة ومؤشر الأداء الميداني</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('analyticsModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
-            </div>
-            <div class="modal-body">
-                <div class="weather-stats-row mb-3">
-                    <div class="weather-box" style="background: var(--primary-light);">
-                        <span>أيام بدون إصابات</span>
-                        <strong class="text-success" style="font-size:1.3rem;">142</strong>
-                    </div>
-                    <div class="weather-box">
-                        <span>إنجاز التكليفات</span>
-                        <strong class="text-primary">94%</strong>
-                    </div>
-                    <div class="weather-box">
-                        <span>إغلاق البلاغات</span>
-                        <strong class="text-info">98%</strong>
-                    </div>
-                </div>
-                <div class="p-2 border rounded text-sm mb-2">
-                    <strong><i class="fa-solid fa-bullseye text-danger"></i> تصنيف المخاطر المكتشفة هذا الشهر:</strong>
-                    <div class="d-flex justify-content-between mt-2 text-secondary"><span>مخاطر حريق: 12%</span> <span>انزلاقات وسقوط: 45%</span> <span>ميكانيكية: 43%</span></div>
-                </div>
-                <button class="btn btn-secondary btn-full" onclick="alert('تم تجميل وإصدار تقرير التحليلات PDF بنجاح')"><i class="fa-solid fa-file-pdf text-danger"></i> تصدير تقرير الأداء المعتمد</button>
-            </div>
-        </div>
     </div>
 
-    <!-- MODAL 2: SAFETY CERTIFICATIONS VAULT (NEW MODULE!) -->
-    <div class="modal-overlay" id="certificationsModal" onclick="closeModalOnOverlay(event, 'certificationsModal')">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-certificate text-success"></i> مستودع شهادات وتراخيص الفريق</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('certificationsModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
-            </div>
-            <div class="modal-body">
-                <p class="text-xs text-secondary mb-2"><i class="fa-solid fa-check-shield text-success"></i> تتبع تواريخ صلاحية الشهادات المهنية لأعضاء السلامة:</p>
-                
-                <div id="certificationsListContainer">
-                    <div class="vault-item-card">
-                        <div>
-                            <h5><i class="fa-solid fa-award text-warning"></i> شهادة OSHA 30 للصحة والسلامة</h5>
-                            <small>العضو: أحمد علي | صالح حتى: 2027/04/15</small>
-                        </div>
-                        <span class="status-pill green"><i class="fa-solid fa-check"></i> سارية</span>
-                    </div>
-                    <div class="vault-item-card">
-                        <div>
-                            <h5><i class="fa-solid fa-person-falling-burst text-danger"></i> تصريح الدخول للأماكن المغلقة (Confined Space)</h5>
-                            <small>العضو: سامي الجهني | صالح حتى: 2026/11/20</small>
-                        </div>
-                        <span class="status-pill green"><i class="fa-solid fa-check"></i> سارية</span>
-                    </div>
-                </div>
+    <!-- ==================== ADMINISTRATIVE MODALS (NO X CLOSE BUTTON, CLICK OUTSIDE TO CLOSE) ==================== -->
 
-                <form onsubmit="handleAddNewCert(event)" class="mt-3 p-2 border rounded">
-                    <h5 class="text-sm font-bold text-primary mb-2"><i class="fa-solid fa-plus-circle"></i> تسجيل شهادة / ترخيص جديد للعضو:</h5>
-                    <div class="form-grid-2">
-                        <div class="form-group mb-1">
-                            <label>اسم الشهادة المهنية</label>
-                            <input type="text" id="certNameInput" placeholder="مثال: إسعافات أولية متقدمة..." required>
-                        </div>
-                        <div class="form-group mb-1">
-                            <label>اسم العضو الحاصل عليها</label>
-                            <input type="text" id="certMemberInput" placeholder="أحمد علي..." required>
-                        </div>
-                    </div>
-                    <button type="submit" class="pure-green-btn btn-sm btn-full mt-2"><i class="fa-solid fa-floppy-disk"></i> إدراج بالمستودع السحابي</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 3: FIRE EXTINGUISHER & ASSET REGISTRY (NEW MODULE!) -->
-    <div class="modal-overlay" id="fireRegistryModal" onclick="closeModalOnOverlay(event, 'fireRegistryModal')">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-fire-extinguisher text-danger"></i> سجل فحص الطفايات ومعدات الإطفاء</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('fireRegistryModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
-            </div>
-            <div class="modal-body">
-                <p class="text-xs text-secondary mb-2">الفحص الدوري لأجهزة الإطفاء ونظام الإنذار المبكر في الموقع:</p>
-                
-                <div id="fireAssetRegistryBox">
-                    <div class="fire-asset-card">
-                        <div>
-                            <h5><i class="fa-solid fa-fire-extinguisher text-danger"></i> طفاية البودرة الجافة (DCP - 6kg) #04</h5>
-                            <small><i class="fa-solid fa-location-dot text-primary"></i> الموقع: مستودع التبريد الرئيسي | ضغط الأسطوانة: سليم</small>
-                        </div>
-                        <button class="btn btn-sm btn-secondary text-success" onclick="logFireInspection(0)"><i class="fa-solid fa-check"></i> تأكيد الفحص</button>
-                    </div>
-                    <div class="fire-asset-card">
-                        <div>
-                            <h5><i class="fa-solid fa-fire-flame-curved text-warning"></i> لوحة إنذار ومستشعر الدخان الرئيسي</h5>
-                            <small><i class="fa-solid fa-location-dot text-primary"></i> الموقع: صالة الإنتاج رقم (1) | بطارية الطوارئ: سليمة</small>
-                        </div>
-                        <button class="btn btn-sm btn-secondary text-success" onclick="logFireInspection(1)"><i class="fa-solid fa-check"></i> تأكيد الفحص</button>
-                    </div>
-                </div>
-
-                <button class="btn btn-primary-ghost btn-full mt-2" onclick="addNewFireAsset()"><i class="fa-solid fa-plus"></i> إضافة جهاز أو طفاية جديدة للسجل</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL 4: TEAM MEMBERS MANAGEMENT -->
+    <!-- 1. MEMBERS & CLOUD SYNC CODE MODAL (Manager Only) -->
     <div class="modal-overlay" id="memberModal" onclick="closeModalOnOverlay(event, 'memberModal')">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-users-viewfinder text-primary"></i> إدارة فريق السلامة وأرقام الربط السحابي</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('memberModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
+                <h3><i class="fa-solid fa-user-plus text-primary"></i> إدارة فريق العمل وأكواد الربط السحابي</h3>
             </div>
             <div class="modal-body">
-                <p class="text-xs text-secondary mb-2">يمكن للمدير إضافة أعضاء الفريق وتوزيع أرقام الربط السحابي (Cloud Sync Codes) لتمكينهم من الدخول المشترك:</p>
-                
-                <div id="membersListTable" class="mb-3"></div>
-
-                <form id="addMemberForm" onsubmit="handleAddNewMember(event)" class="border p-3 rounded">
-                    <h4 class="font-bold text-sm text-primary mb-2"><i class="fa-solid fa-user-plus"></i> إنشاء حساب وتوليد كود ربط לעضو חדש:</h4>
+                <form id="addMemberForm" onsubmit="handleAddNewMember(event); return false;" style="background:var(--bg-main); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:14px;">
+                    <span style="font-size:12px; font-weight:800; color:var(--primary-color); display:block; margin-bottom:8px;"><i class="fa-solid fa-plus-circle"></i> إضافة حساب عضو سلامة جديد:</span>
                     <div class="form-grid-2">
-                        <div class="form-group">
-                            <label>الاسم الكامل</label>
-                            <input type="text" id="newMemberName" placeholder="مثال: فهد السلامة" required>
+                        <div class="form-group mb-2">
+                            <label>الاسم الكامل *</label>
+                            <input type="text" id="newMemberName" placeholder="محمد السالم" required>
                         </div>
-                        <div class="form-group">
-                            <label>اسم المستخدم</label>
-                            <input type="text" id="newMemberUser" placeholder="fahad_s" required>
-                        </div>
-                    </div>
-                    <div class="form-grid-2">
-                        <div class="form-group mb-0">
-                            <label>رقم الهاتف</label>
-                            <input type="tel" id="newMemberPhone" placeholder="0500000000" required>
+                        <div class="form-group mb-2">
+                            <label>اسم المستخدم *</label>
+                            <input type="text" id="newMemberUser" placeholder="m_salim" required>
                         </div>
                         <div class="form-group mb-0">
-                            <label>كلمة المرور</label>
-                            <input type="password" id="newMemberPass" placeholder="••••••" required>
+                            <label>رقم الهاتف *</label>
+                            <input type="tel" id="newMemberPhone" placeholder="050xxxxxxx" required>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label>كلمة المرور *</label>
+                            <input type="password" id="newMemberPass" placeholder="••••" required>
                         </div>
                     </div>
-                    <button type="submit" class="pure-green-btn btn-full mt-3"><i class="fa-solid fa-circle-plus"></i> إضافة العضو وتوليد رقم الربط الفوري</button>
+                    <button type="submit" class="pure-green-btn btn-sm mt-2" style="justify-content:center;"><i class="fa-solid fa-plus"></i> إنشاء الحساب وتوليد كود الربط</button>
                 </form>
+
+                <h5 class="text-sm font-bold my-2"><i class="fa-solid fa-users text-primary"></i> قائمة الأعضاء المسجلين وكود المزامنة:</h5>
+                <div id="membersListTable"></div>
+                
+                <button type="button" class="btn btn-secondary btn-full mt-3" onclick="closeModal('memberModal')">إغلاق النافذة</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 5: DYNAMIC FORM CUSTOMIZER -->
+    <!-- 2. PENDING SIGNATURES QUEUE MODAL -->
+    <div class="modal-overlay" id="pendingSigModal" onclick="closeModalOnOverlay(event, 'pendingSigModal')">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-signature text-warning"></i> الاعتمادات والتوقيع الرقمي للمدير</h3>
+            </div>
+            <div class="modal-body">
+                <p class="text-sm text-secondary mb-2">الوثائق والاستمارات الميدانية المرفوعة بانتظار توقيعك الهاتفي للاعتدال السحابي:</p>
+                <div id="pendingSigQueueList"></div>
+                <button type="button" class="btn btn-secondary btn-full mt-3" onclick="closeModal('pendingSigModal')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. TASKS & MONITORING MODAL -->
+    <div class="modal-overlay" id="tasksModal" onclick="closeModalOnOverlay(event, 'tasksModal')">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-list-check text-info"></i> توجيه المهام ومتابعة تقارير الميدان</h3>
+            </div>
+            <div class="modal-body">
+                <form id="assignTaskForm" onsubmit="handleAssignTask(event); return false;" style="background:var(--bg-main); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:14px;">
+                    <span style="font-size:12px; font-weight:800; color:var(--primary-color); display:block; margin-bottom:8px;"><i class="fa-solid fa-share-from-square"></i> إسناد مهمة جديدة لفريق السلامة:</span>
+                    <div class="form-group mb-2">
+                        <label>تفاصيل المهمة المطلوب إنجازها *</label>
+                        <input type="text" id="taskDescInput" placeholder="مثال: فحص وتجريب جهاز إنذار الحريق الرئيسي..." required>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group mb-0">
+                            <label>الموجه إليه *</label>
+                            <select id="taskTargetMember"><option value="أحمد علي">أحمد علي</option></select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label>تاريخ الإنجاز *</label>
+                            <input type="date" id="taskDueDate">
+                        </div>
+                    </div>
+                    <button type="submit" class="pure-green-btn btn-sm mt-2" style="justify-content:center;"><i class="fa-solid fa-paper-plane"></i> توجيه المهمة وإرسال إشعار بالميدان</button>
+                </form>
+
+                <h5 class="text-sm font-bold my-2"><i class="fa-solid fa-clipboard-list text-primary"></i> سجل المهام الحية وتقارير الإنجاز العائدة:</h5>
+                <div id="tasksMonitoringList"></div>
+                <button type="button" class="btn btn-secondary btn-full mt-3" onclick="closeModal('tasksModal')">إغلاق النافذة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. FORM CUSTOMIZER (DYNAMIC FIELDS) MODAL -->
     <div class="modal-overlay" id="formCustomizerModal" onclick="closeModalOnOverlay(event, 'formCustomizerModal')">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-sliders text-warning"></i> مخصص الحقول والاستمارات الذكي</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('formCustomizerModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
+                <h3><i class="fa-solid fa-sliders text-purple"></i> تخصيص وتصميم الاستمارات (إدراج حقول)</h3>
             </div>
             <div class="modal-body">
-                <p class="text-xs text-secondary">يمكن للمدير إضافة حقول جديدة أو كلمات مخصصة تظهر فوراً في استمارات جميع أعضاء الفريق في الميدان:</p>
-                
-                <div class="form-group my-2">
-                    <label>الاستمارة المستهدفة للتخصيص:</label>
+                <p class="text-sm text-secondary mb-2">أدرج حقولاً أو كلمات مخصصة لاستمارة البلاغات، وستظهر فوراً في جميع هواتف الفريق المتصلة برقم الربط:</p>
+                <div class="form-group">
+                    <label>الاستمارة المستهدفة للتعديل:</label>
                     <select id="customFormTarget" onchange="renderCustomFieldsList()">
-                        <option value="sc">استمارة بلاغات الميدان (SC Observation)</option>
-                        <option value="ptw">استمارة تصاريح العمل (PTW Permit)</option>
+                        <option value="sc">استمارة بلاغات الخطر الميدانية (SC Reports)</option>
+                        <option value="ptw">استمارة تصاريح العمل (Permits To Work)</option>
                     </select>
                 </div>
-
-                <div id="customFieldsListContainer" class="p-2 border rounded bg-main mb-3 d-flex flex-wrap"></div>
-
-                <div class="border p-2 rounded">
-                    <h5 class="text-sm font-bold text-primary mb-2"><i class="fa-solid fa-square-plus"></i> إدراج حقل مخصص جديد بالاستمارة:</h5>
+                <div style="background:var(--bg-main); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:12px;">
                     <div class="form-grid-2">
                         <div class="form-group mb-0">
-                            <label>اسم الحقل / الكلمة</label>
+                            <label>اسم الحقل / الكلمة المطلوب إدراجها:</label>
                             <input type="text" id="customFieldName" placeholder="مثال: رقم الماكينة المتضررة...">
                         </div>
                         <div class="form-group mb-0">
-                            <label>نوع إدخال الحقل</label>
+                            <label>نوع الإدخال:</label>
                             <select id="customFieldType">
-                                <option value="text">نص عادي (Text)</option>
-                                <option value="checkbox">تأكيد خيار (Checkbox)</option>
-                                <option value="textarea">ملاحظات مفصلة (Text area)</option>
+                                <option value="text">نص قصير</option>
+                                <option value="textarea">ملاحظات وموجز</option>
+                                <option value="checkbox">نعم / لا (تأكيد تحقق)</option>
                             </select>
                         </div>
                     </div>
-                    <button type="button" class="pure-green-btn btn-full mt-2" onclick="addCustomFieldToForm()"><i class="fa-solid fa-plus"></i> إضافة الحقل ومزامنة التعديلات سحابياً</button>
+                    <button type="button" class="pure-green-btn btn-sm mt-2" style="justify-content:center;" onclick="addCustomFieldToForm()"><i class="fa-solid fa-plus"></i> إدراج الحقل في الاستمارة</button>
                 </div>
+
+                <h5 class="text-sm font-bold my-2"><i class="fa-solid fa-list text-primary"></i> الحقول الحالية بالاستمارة:</h5>
+                <div id="customFieldsListContainer" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+                <button type="button" class="btn btn-secondary btn-full mt-3" onclick="closeModal('formCustomizerModal')">إغلاق النافذة</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 6: CALENDAR EVENTS -->
+    <!-- 5. CALENDAR & EVENTS MODAL -->
     <div class="modal-overlay" id="calendarModal" onclick="closeModalOnOverlay(event, 'calendarModal')">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-calendar-days text-info"></i> التقويم الأمني وجدول التمارين</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('calendarModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
+                <h3><i class="fa-solid fa-calendar-days text-orange"></i> تقويم السلامة والمواعيد الفنية</h3>
             </div>
             <div class="modal-body">
-                <div class="section-top-bar">
-                    <button class="btn btn-sm btn-secondary" onclick="navigateMonth(-1)"><i class="fa-solid fa-chevron-right"></i></button>
-                    <h5 id="calendarMonthYearDisplay" class="m-0 font-bold">أغسطس 2026</h5>
-                    <button class="btn btn-sm btn-secondary" onclick="navigateMonth(1)"><i class="fa-solid fa-chevron-left"></i></button>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="navigateMonth(-1)"><i class="fa-solid fa-chevron-right"></i></button>
+                    <h5 id="calendarMonthYearDisplay" class="mb-0 font-bold">أغسطس 2026</h5>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="navigateMonth(1)"><i class="fa-solid fa-chevron-left"></i></button>
                 </div>
-
-                <div class="calendar-grid-container mb-3">
-                    <div class="week-header-grid">
-                        <span>أحد</span><span>إثن</span><span>ثلث</span><span>أرب</span><span>خمس</span><span>جمعة</span><span>سبت</span>
-                    </div>
-                    <div class="days-grid" id="daysGridContainer"></div>
-                </div>
-
-                <h5 class="text-sm font-bold text-primary mb-2"><i class="fa-solid fa-calendar-check"></i> المناسبات والبرامج المقررة:</h5>
-                <div id="monthEventsList" class="mb-3"></div>
-
-                <form id="addEventForm" onsubmit="handleAddCalendarEvent(event)" class="border p-2 rounded">
-                    <div class="form-grid-2">
-                        <div class="form-group mb-1">
-                            <label>اسم المناسبة / التمرين</label>
-                            <input type="text" id="eventTitle" placeholder="تمرين إخلاء فرضية..." required>
-                        </div>
-                        <div class="form-group mb-1">
-                            <label>التاريخ</label>
-                            <input type="date" id="eventDate" required>
-                        </div>
-                    </div>
-                    <div class="form-group mb-1">
-                        <label>التصنيف</label>
-                        <select id="eventType">
-                            <option value="drill">تمرين إخلاء طوارئ (Drill)</option>
-                            <option value="training">دورة تدريب وتأهيل (Training)</option>
-                            <option value="audit">تفتيش وتدقيق أمني (Audit)</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="pure-green-btn btn-sm btn-full mt-2"><i class="fa-solid fa-calendar-plus"></i> حفظ وجدولة بالتقويم</button>
-                </form>
+                
+                <div class="days-grid mb-3" id="daysGridContainer"></div>
+                <div id="monthEventsList" style="border-top:1px dashed var(--border-color); padding-top:10px;"></div>
+                <button type="button" class="btn btn-secondary btn-full mt-3" onclick="closeModal('calendarModal')">إغلاق</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 7: GITHUB CONFIG -->
+    <!-- 6. GITHUB CLOUD SETUP MODAL -->
     <div class="modal-overlay" id="githubModal" onclick="closeModalOnOverlay(event, 'githubModal')">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-server text-primary"></i> إعدادات قاعدة بيانات GitHub والربط السحابي</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('githubModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
+                <h3><i class="fa-solid fa-cloud text-primary"></i> إعدادات قاعدة بيانات GitHub Sync</h3>
             </div>
             <div class="modal-body">
-                <div class="p-2 border rounded mb-2">
-                    <strong class="text-xs text-primary d-block mb-1"><i class="fa-solid fa-cloud"></i> كود المزامنة الحالي للفريق:</strong>
-                    <div class="d-flex gap-2">
-                        <code id="displayCloudSyncCodeModal" class="sync-code-display w-100 p-2 bg-main rounded text-center font-bold font-mono">HSE-SYNC-READY</code>
-                    </div>
+                <div style="background:var(--primary-light); padding:10px; border-radius:var(--radius-md); text-align:center; margin-bottom:14px;">
+                    <span class="font-bold text-primary d-block text-xs">رقم الربط السحابي النشط لفريقك:</span>
+                    <code id="displayCloudSyncCode" style="font-size:14px; font-weight:900;">HSE-SYNC-...</code>
                 </div>
-                <form id="githubConfigForm" onsubmit="saveGitHubConfig(event)" class="mt-2">
-                    <div class="form-group">
-                        <label>اسم صاحب الحساب (Owner) *</label>
-                        <input type="text" id="ghOwnerInput" required>
+                <form id="githubConfigForm" onsubmit="saveGitHubConfig(event); return false;">
+                    <div class="form-group mb-2">
+                        <label>صاحب الحساب (Owner) *</label>
+                        <input type="text" id="ghOwnerInput" value="lootb8890-hue" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-2">
                         <label>اسم المستودع (Repo Name) *</label>
-                        <input type="text" id="ghRepoInput" required>
+                        <input type="text" id="ghRepoInput" value="HSE_kala_safty" required>
                     </div>
-                    <div class="form-group">
-                        <label>رمز المصادقة (Token - اختياري للمستودعات الخاصة)</label>
-                        <input type="password" id="ghTokenInput" placeholder="أدخل التوكن السري عند الحاجة..." value="">
+                    <div class="form-group mb-2">
+                        <label>رمز المصادقة (PAT Token)</label>
+                        <input type="password" id="ghTokenInput" placeholder="أدخل التوكن السري للمستودع..." value="">
                     </div>
-                    <button type="submit" class="pure-green-btn btn-full mt-2"><i class="fa-solid fa-rotate"></i> حفظ وتحديث كود الربط السحابي</button>
+                    <button type="submit" class="pure-green-btn mt-2" style="justify-content:center;"><i class="fa-solid fa-rotate"></i> حفظ وتحديث كود الربط السحابي</button>
+                    <button type="button" class="btn btn-secondary btn-full mt-2" onclick="closeModal('githubModal')">إغلاق</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 8: DIGITAL SIGNATURE PAD -->
+    <!-- 7. DIGITAL SIGNATURE PAD MODAL -->
     <div class="modal-overlay" id="sigModal" onclick="closeModalOnOverlay(event, 'sigModal')">
         <div class="modal-card">
             <div class="modal-header">
                 <h3><i class="fa-solid fa-signature text-primary"></i> التوقيع الرقمي المعتمد للمستند</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('sigModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
             </div>
-            <div class="modal-body">
-                <div class="sig-pad-container">
-                    <div class="sig-target-doc-info font-bold text-primary" id="sigTargetDocTitle">جاري اعتماد التصريح</div>
-                    <canvas id="sigCanvas" width="400" height="180"></canvas>
-                    <div class="canvas-actions">
-                        <button class="btn btn-sm btn-secondary" onclick="clearSignature()"><i class="fa-solid fa-eraser"></i> مسح وإعادة رسم</button>
-                        <button class="pure-green-btn btn-sm" onclick="saveSignature()"><i class="fa-solid fa-check-double"></i> اعتماد التوقيع ومزامنة المستند</button>
-                    </div>
+            <div class="modal-body text-center">
+                <div class="font-bold text-primary mb-2" id="sigTargetDocTitle">جاري اعتماد التصريح</div>
+                <canvas id="sigCanvas" width="340" height="160" style="background:#f8fafc; border:2px dashed #059669; border-radius:12px; margin:0 auto;"></canvas>
+                <div style="display:flex; gap:10px; margin-top:12px;">
+                    <button type="button" class="btn btn-secondary" style="flex:1;" onclick="clearSignature()"><i class="fa-solid fa-eraser"></i> مسح التوقيع</button>
+                    <button type="button" class="pure-green-btn" style="flex:2; justify-content:center;" onclick="saveSignature()"><i class="fa-solid fa-check"></i> حفظ واعتماد رقمي</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 9: TASK REPORT EXECUTED -->
+    <!-- 8. TASK REPORT MODAL -->
     <div class="modal-overlay" id="taskReportModal" onclick="closeModalOnOverlay(event, 'taskReportModal')">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-paper-plane text-primary"></i> تقرير إنجاز التكليف الميداني</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('taskReportModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
+                <h3><i class="fa-solid fa-paper-plane text-success"></i> رفع تقرير إنجاز المهمة الميدانية</h3>
             </div>
             <div class="modal-body">
-                <p id="reportTaskTitleDisplay" class="font-bold mb-2"></p>
-                <form id="taskReportForm" onsubmit="handleTaskReportSubmit(event)">
-                    <input type="hidden" id="activeReportTaskId">
+                <input type="hidden" id="activeReportTaskId">
+                <div class="font-bold text-primary text-sm mb-2" id="reportTaskTitleDisplay"></div>
+                <form onsubmit="handleTaskReportSubmit(event); return false;">
                     <div class="form-group">
-                        <label>ملخص ما تم تنفيذه في الميدان</label>
-                        <textarea id="taskReportNotes" rows="3" class="form-control" placeholder="اكتب تفاصيل إنجاز الفحص أو الصيانة المقررة..." required></textarea>
+                        <label>ملخص وإجراءات إنجاز المهمة *</label>
+                        <textarea id="taskReportNotes" rows="4" placeholder="اكتب تقرير الإنجاز ليظهر للمدير في الميدان..." required></textarea>
                     </div>
-                    <button type="submit" class="pure-green-btn btn-full mt-2"><i class="fa-solid fa-check"></i> إرسال التقرير النهائي للمدير</button>
+                    <button type="submit" class="pure-green-btn mt-2" style="justify-content:center;"><i class="fa-solid fa-check-double"></i> إرسال التقرير النهائي للمدير</button>
+                    <button type="button" class="btn btn-secondary btn-full mt-2" onclick="closeModal('taskReportModal')">إغلاق</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 10: PENDING SIGNATURES QUEUE (IF NEEDED VIA DIRECT CALLS) -->
-    <div class="modal-overlay" id="pendingSigModal" onclick="closeModalOnOverlay(event, 'pendingSigModal')">
+    <!-- 9. SCHEDULE SETTINGS MODAL -->
+    <div class="modal-overlay" id="scheduleModal" onclick="closeModalOnOverlay(event, 'scheduleModal')">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-file-contract text-warning"></i> طابور البلاغات المعلقة للتوقيع</h3>
-                <button class="btn btn-sm btn-secondary" onclick="closeModal('pendingSigModal')"><i class="fa-solid fa-arrow-left"></i> رجوع</button>
+                <h3><i class="fa-solid fa-clock-rotate-left text-teal"></i> جدولة جولات الفحص الدوري</h3>
             </div>
-            <div class="modal-body" id="pendingSigQueueList"></div>
+            <div class="modal-body">
+                <form onsubmit="saveScheduleSettings(event); return false;">
+                    <div class="form-group">
+                        <label>تكرار جولات التفتيش:</label>
+                        <label style="display:block; margin:6px 0;"><input type="radio" name="checkinFrequency" value="daily" checked> فحص يومي إجباري صباحي</label>
+                        <label style="display:block; margin:6px 0;"><input type="radio" name="checkinFrequency" value="weekly"> فحص أسبوعي شامل</label>
+                    </div>
+                    <button type="submit" class="pure-green-btn mt-2" style="justify-content:center;"><i class="fa-solid fa-floppy-disk"></i> حفظ وضبط الجدولة</button>
+                    <button type="button" class="btn btn-secondary btn-full mt-2" onclick="closeModal('scheduleModal')">إغلاق</button>
+                </form>
+            </div>
         </div>
     </div>
 
+    <!-- Core App Application Logic -->
     <script src="github_db.js"></script>
     <script src="app.js"></script>
 </body>
