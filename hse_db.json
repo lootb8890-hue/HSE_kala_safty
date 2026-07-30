@@ -50,6 +50,14 @@
   ],
   "tasks": [
     {
+      "id": "TSK-795",
+      "title": "ohytuigig",
+      "assignedTo": "أحمد علي",
+      "dueDate": "2026-07-30",
+      "status": "pending",
+      "report": null
+    },
+    {
       "id": "TSK-101",
       "title": "فحص طفايات الحريق بالمستودع الشمالي",
       "assignedTo": "أحمد علي",
